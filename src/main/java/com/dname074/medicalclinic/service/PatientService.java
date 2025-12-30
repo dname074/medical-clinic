@@ -2,6 +2,7 @@ package com.dname074.medicalclinic.service;
 
 import com.dname074.medicalclinic.model.ChangePasswordCommand;
 import com.dname074.medicalclinic.model.Patient;
+import com.dname074.medicalclinic.model.PatientDto;
 import com.dname074.medicalclinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,27 +15,27 @@ import java.util.Optional;
 public class PatientService {
     private final PatientRepository repository;
 
-    public List<Patient> findAll() {
+    public List<PatientDto> findAll() {
         return repository.getAll();
     }
 
-    public Patient addPatient(Patient patient) {
+    public PatientDto addPatient(Patient patient) {
         return repository.add(patient);
     }
 
-    public Optional<Patient> findPatientByEmail(String email) {
-        return repository.getByEmail(email);
+    public Optional<PatientDto> findPatientByEmail(String email) {
+        return repository.findByEmail(email);
     }
 
-    public Optional<Patient> removePatient(String email) {
+    public Optional<PatientDto> removePatient(String email) {
         return repository.remove(email);
     }
 
-    public Optional<Patient> updatePatient(String email, Patient updatedPatient) {
+    public Optional<PatientDto> updatePatient(String email, Patient updatedPatient) {
         return repository.update(email, updatedPatient);
     }
 
-    public Optional<Patient> modifyPatientPassword(String email, ChangePasswordCommand newPassword) {
+    public Optional<PatientDto> modifyPatientPassword(String email, ChangePasswordCommand newPassword) {
         return repository.modifyPassword(email, newPassword);
     }
 }
