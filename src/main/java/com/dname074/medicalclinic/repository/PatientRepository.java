@@ -1,12 +1,13 @@
 package com.dname074.medicalclinic.repository;
 
+import com.dname074.medicalclinic.model.ChangePasswordCommand;
 import com.dname074.medicalclinic.model.Patient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,26 +23,27 @@ public class PatientRepository {
         return patients.getLast();
     }
 
-    public Patient getByEmail(String email) {
+    public Optional<Patient> getByEmail(String email) {
         return patients.stream()
                 .filter(patient -> patient.getEmail().equals(email))
-                .findFirst()
-                .orElseThrow(() -> new InvalidParameterException("Nie znaleziono pacjenta o podanym emailu"));
+                .findFirst();
     }
 
-    public Patient remove(String email) {
-        Patient patient = getByEmail(email);
-        patients.remove(patient);
-        return patient;
+    public Optional<Patient> remove(String email) {
+        Optional<Patient> removedPatient = getByEmail(email);
+        patients.removeIf(patient -> patient.getEmail().equals(email));
+        return removedPatient;
     }
 
-    public Patient update(String email, Patient updatedPatient) {
-        for (int i = 0; i < patients.size(); i++) {
-            if (patients.get(i).getEmail().equals(email)) {
-                patients.set(i, updatedPatient);
-                return updatedPatient;
-            }
-        }
-        throw new InvalidParameterException("Podano niepoprawny email");
+    public Optional<Patient> update(String email, Patient updatedPatient) {
+        Optional<Patient> foundPatient = getByEmail(email);
+        foundPatient.ifPresent(patient -> patient.update(updatedPatient));
+        return foundPatient;
+    }
+
+    public Optional<Patient> modifyPassword(String email, ChangePasswordCommand newPassword) {
+        Optional<Patient> foundPatient = getByEmail(email);
+        foundPatient.ifPresent(patient -> patient.setPassword(newPassword.password()));
+        return foundPatient;
     }
 }

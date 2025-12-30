@@ -17,4 +17,14 @@ public class Patient {
     private String lastName;
     private String phoneNumber;
     private LocalDate birthday;
+
+    public void update(Patient patient) {
+        setEmail(patient.getEmail());
+        setPassword(patient.getPassword());
+        setIdCardNo(patient.getIdCardNo());
+        setFirstName(patient.getFirstName());
+        setLastName(patient.getLastName());
+        setPhoneNumber(patient.getPhoneNumber());
+        setBirthday(patient.getBirthday());
+    }
 }
