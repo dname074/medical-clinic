@@ -1,7 +1,7 @@
 package com.dname074.medicalclinic.service;
 
+import com.dname074.medicalclinic.model.CreatePatientCommand;
 import com.dname074.medicalclinic.model.ChangePasswordCommand;
-import com.dname074.medicalclinic.model.Patient;
 import com.dname074.medicalclinic.model.PatientDto;
 import com.dname074.medicalclinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class PatientService {
         return repository.getAll();
     }
 
-    public PatientDto addPatient(Patient patient) {
+    public PatientDto addPatient(CreatePatientCommand patient) {
         return repository.add(patient);
     }
 
@@ -31,7 +31,7 @@ public class PatientService {
         return repository.remove(email);
     }
 
-    public Optional<PatientDto> updatePatient(String email, Patient updatedPatient) {
+    public Optional<PatientDto> updatePatient(String email, CreatePatientCommand updatedPatient) {
         return repository.update(email, updatedPatient);
     }
 

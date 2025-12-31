@@ -1,7 +1,7 @@
 package com.dname074.medicalclinic.controller;
 
+import com.dname074.medicalclinic.model.CreatePatientCommand;
 import com.dname074.medicalclinic.model.ChangePasswordCommand;
-import com.dname074.medicalclinic.model.Patient;
 import com.dname074.medicalclinic.model.PatientDto;
 import com.dname074.medicalclinic.service.PatientService;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class PatientController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public PatientDto addPatient(@RequestBody Patient patient) {
+    public PatientDto addPatient(@RequestBody CreatePatientCommand patient) {
         return patientService.addPatient(patient);
     }
 
@@ -51,7 +51,7 @@ public class PatientController {
     }
 
     @PutMapping("/{email}")
-    public ResponseEntity<PatientDto> updatePatient(@PathVariable String email, @RequestBody Patient updatedPatient) {
+    public ResponseEntity<PatientDto> updatePatient(@PathVariable String email, @RequestBody CreatePatientCommand updatedPatient) {
         Optional<PatientDto> patient = patientService.updatePatient(email, updatedPatient);
         return patient.map(p -> ResponseEntity.ok().body(p)).orElseGet(() -> ResponseEntity.notFound().build());
     }
