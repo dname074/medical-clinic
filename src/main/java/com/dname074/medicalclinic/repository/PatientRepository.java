@@ -1,10 +1,6 @@
 package com.dname074.medicalclinic.repository;
 
-import com.dname074.medicalclinic.model.CreatePatientCommand;
-import com.dname074.medicalclinic.model.ChangePasswordCommand;
 import com.dname074.medicalclinic.model.Patient;
-import com.dname074.medicalclinic.model.PatientDto;
-import com.dname074.medicalclinic.util.DtoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -15,22 +11,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PatientRepository {
     private final List<Patient> patients;
-    private final DtoMapper mapper;
 
-    public List<PatientDto> getAll() {
+    public List<Patient> getAll() {
         return patients.stream()
-                .map(PatientDto::new)
                 .toList();
     }
 
-    public PatientDto add(CreatePatientCommand patient) {
-        patients.add(mapper.createPatientDtotoPatient(patient));
-        return mapper.toDto(patients.getLast());
+    public Patient add(Patient patient) {
+        patients.add(patient);
+        return patients.getLast();
     }
 
-    public Optional<PatientDto> findByEmail(String email) {
-        return getByEmail(email)
-                .map(mapper::toDto);
+    public Optional<Patient> findByEmail(String email) {
+        return getByEmail(email);
     }
 
     private Optional<Patient> getByEmail(String email) {
@@ -39,24 +32,21 @@ public class PatientRepository {
                 .findFirst();
     }
 
-    public Optional<PatientDto> remove(String email) {
+    public Optional<Patient> remove(String email) {
         Optional<Patient> removedPatient = getByEmail(email);
         patients.removeIf(patient -> patient.getEmail().equals(email));
-        return removedPatient
-                .map(mapper::toDto);
+        return removedPatient;
     }
 
-    public Optional<PatientDto> update(String email, CreatePatientCommand updatedPatient) {
+    public Optional<Patient> update(String email, Patient updatedPatient) {
         Optional<Patient> foundPatient = getByEmail(email);
-        foundPatient.ifPresent(patient -> patient.update(mapper.createPatientDtotoPatient(updatedPatient)));
-        return foundPatient
-                .map(mapper::toDto);
+        foundPatient.ifPresent(patient -> patient.update(updatedPatient));
+        return foundPatient;
     }
 
-    public Optional<PatientDto> modifyPassword(String email, ChangePasswordCommand newPassword) {
+    public Optional<Patient> modifyPassword(String email, String newPassword) {
         Optional<Patient> foundPatient = getByEmail(email);
-        foundPatient.ifPresent(patient -> patient.setPassword(newPassword.password()));
-        return foundPatient
-                .map(mapper::toDto);
+        foundPatient.ifPresent(patient -> patient.setPassword(newPassword));
+        return foundPatient;
     }
 }

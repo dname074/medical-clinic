@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,8 +33,9 @@ public class PatientController {
 
     @GetMapping("/{email}")
     public ResponseEntity<PatientDto> findPatientByEmail(@PathVariable String email) {
-        Optional<PatientDto> patient = patientService.findPatientByEmail(email);
-        return patient.map(value -> ResponseEntity.ok().body(value)).orElseGet(() -> ResponseEntity.notFound().build());
+//        Optional<PatientDto> patient = patientService.findPatientByEmail(email);
+//        return patient.map(value -> ResponseEntity.ok().body(value)).orElseGet(() -> ResponseEntity.notFound().build()); działa tak samo, ale krótsza i lepsza jest druga opcja
+        return ResponseEntity.of(patientService.findPatientByEmail(email));
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -46,19 +46,16 @@ public class PatientController {
 
     @DeleteMapping("/{email}")
     public ResponseEntity<PatientDto> removePatient(@PathVariable String email) {
-        Optional<PatientDto> patient = patientService.removePatient(email);
-        return patient.map(p -> ResponseEntity.ok().body(p)).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.of(patientService.removePatient(email));
     }
 
     @PutMapping("/{email}")
     public ResponseEntity<PatientDto> updatePatient(@PathVariable String email, @RequestBody CreatePatientCommand updatedPatient) {
-        Optional<PatientDto> patient = patientService.updatePatient(email, updatedPatient);
-        return patient.map(p -> ResponseEntity.ok().body(p)).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.of(patientService.updatePatient(email, updatedPatient));
     }
 
     @PatchMapping("/{email}")
     public ResponseEntity<PatientDto> modifyPassword(@PathVariable String email, @RequestBody ChangePasswordCommand newPassword) {
-        Optional<PatientDto> patient = patientService.modifyPatientPassword(email, newPassword);
-        return patient.map(p -> ResponseEntity.ok().body(p)).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.of(patientService.modifyPatientPassword(email, newPassword));
     }
 }

@@ -1,5 +1,6 @@
 package com.dname074.medicalclinic.service;
 
+import com.dname074.medicalclinic.mapper.PatientMapper;
 import com.dname074.medicalclinic.model.CreatePatientCommand;
 import com.dname074.medicalclinic.model.ChangePasswordCommand;
 import com.dname074.medicalclinic.model.PatientDto;
@@ -14,28 +15,35 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PatientService {
     private final PatientRepository repository;
+    private final PatientMapper mapper;
 
     public List<PatientDto> findAll() {
-        return repository.getAll();
+        return repository.getAll().stream()
+                .map(mapper::toDto)
+                .toList();
     }
 
     public PatientDto addPatient(CreatePatientCommand patient) {
-        return repository.add(patient);
+        return mapper.toDto(repository.add(mapper.createPatientCommandToEntity(patient)));
     }
 
     public Optional<PatientDto> findPatientByEmail(String email) {
-        return repository.findByEmail(email);
+        return repository.findByEmail(email)
+                .map(mapper::toDto);
     }
 
     public Optional<PatientDto> removePatient(String email) {
-        return repository.remove(email);
+        return repository.remove(email)
+                .map(mapper::toDto);
     }
 
     public Optional<PatientDto> updatePatient(String email, CreatePatientCommand updatedPatient) {
-        return repository.update(email, updatedPatient);
+        return repository.update(email, mapper.createPatientCommandToEntity(updatedPatient))
+                .map(mapper::toDto);
     }
 
     public Optional<PatientDto> modifyPatientPassword(String email, ChangePasswordCommand newPassword) {
-        return repository.modifyPassword(email, newPassword);
+        return repository.modifyPassword(email, mapper.changePasswordCommandToEntity(newPassword))
+                .map(mapper::toDto);
     }
 }
