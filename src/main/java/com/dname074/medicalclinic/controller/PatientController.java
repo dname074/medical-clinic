@@ -35,7 +35,8 @@ public class PatientController {
     public ResponseEntity<PatientDto> findPatientByEmail(@PathVariable String email) {
 //        Optional<PatientDto> patient = patientService.findPatientByEmail(email);
 //        return patient.map(value -> ResponseEntity.ok().body(value)).orElseGet(() -> ResponseEntity.notFound().build()); działa tak samo, ale krótsza i lepsza jest druga opcja
-        return ResponseEntity.of(patientService.findPatientByEmail(email));
+//        return ResponseEntity.of(patientService.findPatientByEmail(email) gdy jeszcze bazowalem na optionalach
+        return ResponseEntity.status(200).body(patientService.findPatientByEmail(email));
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -46,16 +47,16 @@ public class PatientController {
 
     @DeleteMapping("/{email}")
     public ResponseEntity<PatientDto> removePatient(@PathVariable String email) {
-        return ResponseEntity.of(patientService.removePatient(email));
+        return ResponseEntity.status(200).body(patientService.removePatient(email));
     }
 
     @PutMapping("/{email}")
     public ResponseEntity<PatientDto> updatePatient(@PathVariable String email, @RequestBody CreatePatientCommand updatedPatient) {
-        return ResponseEntity.of(patientService.updatePatient(email, updatedPatient));
+        return ResponseEntity.status(200).body(patientService.updatePatient(email, updatedPatient));
     }
 
     @PatchMapping("/{email}")
     public ResponseEntity<PatientDto> modifyPassword(@PathVariable String email, @RequestBody ChangePasswordCommand newPassword) {
-        return ResponseEntity.of(patientService.modifyPatientPassword(email, newPassword));
+        return ResponseEntity.status(200).body(patientService.modifyPatientPassword(email, newPassword));
     }
 }

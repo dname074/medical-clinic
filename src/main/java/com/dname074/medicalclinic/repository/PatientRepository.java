@@ -17,19 +17,16 @@ public class PatientRepository {
                 .toList();
     }
 
-    public Patient add(Patient patient) {
-        patients.add(patient);
-        return patients.getLast();
-    }
-
     public Optional<Patient> findByEmail(String email) {
         return getByEmail(email);
     }
 
-    private Optional<Patient> getByEmail(String email) {
-        return patients.stream()
-                .filter(patient -> patient.getEmail().equals(email))
-                .findFirst();
+    public Optional<Patient> add(Patient patient) {
+        if (patients.contains(patient)) {
+            return Optional.empty();
+        }
+        patients.add(patient);
+        return Optional.of(patients.getLast());
     }
 
     public Optional<Patient> remove(String email) {
@@ -48,5 +45,11 @@ public class PatientRepository {
         Optional<Patient> foundPatient = getByEmail(email);
         foundPatient.ifPresent(patient -> patient.setPassword(newPassword));
         return foundPatient;
+    }
+
+    private Optional<Patient> getByEmail(String email) {
+        return patients.stream()
+                .filter(patient -> patient.getEmail().equals(email))
+                .findFirst();
     }
 }
