@@ -6,7 +6,6 @@ import com.dname074.medicalclinic.model.PatientDto;
 import com.dname074.medicalclinic.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -32,11 +31,8 @@ public class PatientController {
     }
 
     @GetMapping("/{email}")
-    public ResponseEntity<PatientDto> findPatientByEmail(@PathVariable String email) {
-//        Optional<PatientDto> patient = patientService.findPatientByEmail(email);
-//        return patient.map(value -> ResponseEntity.ok().body(value)).orElseGet(() -> ResponseEntity.notFound().build()); działa tak samo, ale krótsza i lepsza jest druga opcja
-//        return ResponseEntity.of(patientService.findPatientByEmail(email) gdy jeszcze bazowalem na optionalach
-        return ResponseEntity.status(200).body(patientService.findPatientByEmail(email));
+    public PatientDto findPatientByEmail(@PathVariable String email) {
+        return patientService.findPatientByEmail(email);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -46,17 +42,17 @@ public class PatientController {
     }
 
     @DeleteMapping("/{email}")
-    public ResponseEntity<PatientDto> removePatient(@PathVariable String email) {
-        return ResponseEntity.status(200).body(patientService.removePatient(email));
+    public PatientDto removePatient(@PathVariable String email) {
+        return patientService.removePatient(email);
     }
 
     @PutMapping("/{email}")
-    public ResponseEntity<PatientDto> updatePatient(@PathVariable String email, @RequestBody CreatePatientCommand updatedPatient) {
-        return ResponseEntity.status(200).body(patientService.updatePatient(email, updatedPatient));
+    public PatientDto updatePatient(@PathVariable String email, @RequestBody CreatePatientCommand updatedPatient) {
+        return patientService.updatePatient(email, updatedPatient);
     }
 
     @PatchMapping("/{email}")
-    public ResponseEntity<PatientDto> modifyPassword(@PathVariable String email, @RequestBody ChangePasswordCommand newPassword) {
-        return ResponseEntity.status(200).body(patientService.modifyPatientPassword(email, newPassword));
+    public PatientDto modifyPassword(@PathVariable String email, @RequestBody ChangePasswordCommand newPassword) {
+        return patientService.modifyPatientPassword(email, newPassword);
     }
 }
