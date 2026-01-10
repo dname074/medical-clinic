@@ -1,20 +1,13 @@
 package com.dname074.medicalclinic.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class CreatePatientCommand {
-    private String email;
-    private String password;
-    private int idCardNo;
-    private String firstName;
-    private String lastName;
-    private String phoneNumber;
-    private LocalDate birthday;
+public record CreatePatientCommand(String email,
+        String password,
+        int idCardNo,
+        String firstName,
+        String lastName,
+        String phoneNumber,
+        LocalDate birthday) {
+
 }
