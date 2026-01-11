@@ -1,8 +1,8 @@
 package com.dname074.medicalclinic.controller;
 
-import com.dname074.medicalclinic.model.CreatePatientCommand;
-import com.dname074.medicalclinic.model.ChangePasswordCommand;
-import com.dname074.medicalclinic.model.PatientDto;
+import com.dname074.medicalclinic.dto.CreatePatientCommand;
+import com.dname074.medicalclinic.dto.ChangePasswordCommand;
+import com.dname074.medicalclinic.dto.PatientDto;
 import com.dname074.medicalclinic.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

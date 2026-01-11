@@ -1,4 +1,4 @@
-package com.dname074.medicalclinic.model;
+package com.dname074.medicalclinic.dto;
 
 import java.time.LocalDate;
 

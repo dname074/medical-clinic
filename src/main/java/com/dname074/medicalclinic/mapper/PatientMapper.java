@@ -1,9 +1,9 @@
 package com.dname074.medicalclinic.mapper;
 
-import com.dname074.medicalclinic.model.ChangePasswordCommand;
-import com.dname074.medicalclinic.model.CreatePatientCommand;
+import com.dname074.medicalclinic.dto.ChangePasswordCommand;
+import com.dname074.medicalclinic.dto.CreatePatientCommand;
 import com.dname074.medicalclinic.model.Patient;
-import com.dname074.medicalclinic.model.PatientDto;
+import com.dname074.medicalclinic.dto.PatientDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
