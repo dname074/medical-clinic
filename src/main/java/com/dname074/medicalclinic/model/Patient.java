@@ -20,11 +20,13 @@ import java.time.LocalDate;
 public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idCardNo;
+    private Long id;
     @Column(name="email")
     private String email;
     @Column(name="password")
     private String password;
+    @Column(name="idCardNumber")
+    private int idCardNo;
     @Column(name="firstName")
     private String firstName;
     @Column(name="lastName")
