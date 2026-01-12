@@ -1,11 +1,11 @@
 package com.dname074.medicalclinic.service;
 
-import com.dname074.medicalclinic.exception.PatientAlreadyExistsException;
 import com.dname074.medicalclinic.exception.PatientNotFoundException;
 import com.dname074.medicalclinic.mapper.PatientMapper;
 import com.dname074.medicalclinic.dto.CreatePatientCommand;
 import com.dname074.medicalclinic.dto.ChangePasswordCommand;
 import com.dname074.medicalclinic.dto.PatientDto;
+import com.dname074.medicalclinic.model.Patient;
 import com.dname074.medicalclinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class PatientService {
     private final PatientMapper mapper;
 
     public List<PatientDto> findAll() {
-        return repository.getAll().stream()
+        return repository.findAll().stream()
                 .map(mapper::toDto)
                 .toList();
     }
@@ -31,26 +31,31 @@ public class PatientService {
     }
 
     public PatientDto addPatient(CreatePatientCommand patient) {
-        return repository.add(mapper.createPatientCommandToEntity(patient))
-                .map(mapper::toDto)
-                .orElseThrow(() -> new PatientAlreadyExistsException("Podany pacjent już istnieje w bazie"));
+        return mapper.toDto(repository.save(mapper.createPatientCommandToEntity(patient)));
     }
 
     public PatientDto removePatient(String email) {
-        return repository.remove(email)
-                .map(mapper::toDto)
+        Patient patient = repository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Nie udało się znaleźć pacjenta"));
+
+        repository.delete(patient);
+        return mapper.toDto(patient);
     }
 
     public PatientDto updatePatient(String email, CreatePatientCommand updatedPatient) {
-        return repository.update(email, mapper.createPatientCommandToEntity(updatedPatient))
-                .map(mapper::toDto)
+        Patient patient = repository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Nie udało się znaleźć pacjenta"));
+
+        Patient newPatient = mapper.createPatientCommandToEntity(updatedPatient);
+        patient.update(newPatient);
+        repository.save(patient);
+        return mapper.toDto(patient);
     }
 
     public PatientDto modifyPatientPassword(String email, ChangePasswordCommand newPassword) {
-        return repository.modifyPassword(email, mapper.changePasswordCommandToEntity(newPassword))
-                .map(mapper::toDto)
+        Patient patient = repository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Nie udało się znaleźć pacjenta"));
+        patient.setPassword(mapper.changePasswordCommandToEntity(newPassword));
+        return mapper.toDto(patient);
     }
 }
