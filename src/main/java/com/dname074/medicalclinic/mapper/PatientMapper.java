@@ -9,13 +9,16 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface PatientMapper {
+    @Mapping(target = "user.lastName", source = "lastName")
+    @Mapping(target = "user.firstName", source = "firstName")
     Patient createPatientCommandToEntity(CreatePatientCommand patientCommand);
+    @Mapping(target = "surname", source = "user.lastName")
+    @Mapping(target = "firstName", source = "user.firstName")
+    PatientDto toDto(Patient patient);
     default String changePasswordCommandToEntity(ChangePasswordCommand passwordCommand) {
         if (passwordCommand == null) {
             return null;
         }
         return passwordCommand.password();
     }
-    @Mapping(target = "surname", source = "patient.lastName")
-    PatientDto toDto(Patient patient);
 }

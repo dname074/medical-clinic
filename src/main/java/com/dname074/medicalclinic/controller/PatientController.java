@@ -32,7 +32,7 @@ public class PatientController {
 
     @GetMapping("/{email}")
     public PatientDto findPatientByEmail(@PathVariable String email) {
-        return patientService.findPatientByEmail(email);
+        return patientService.getPatientDtoByEmail(email);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
