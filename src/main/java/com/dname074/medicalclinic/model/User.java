@@ -11,8 +11,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name="medicalclinic_user")
 public class User {
@@ -23,4 +23,6 @@ public class User {
     private String lastName;
     @OneToOne(mappedBy = "user")
     private Patient patient;
+    @OneToOne(mappedBy = "user")
+    private Doctor doctor;
 }

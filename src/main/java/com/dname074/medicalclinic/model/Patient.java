@@ -10,17 +10,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="Patient")
+@Table(name="patients",
+        uniqueConstraints = {
+        @UniqueConstraint(columnNames = "email")
+        })
 public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

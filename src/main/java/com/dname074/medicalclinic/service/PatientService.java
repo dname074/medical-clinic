@@ -35,7 +35,7 @@ public class PatientService {
         if (repository.findByEmail(createPatientCommand.email()).isPresent()) {
             throw new PatientAlreadyExistsException("Pacjent o podanym adresie email już istnieje w bazie danych");
         }
-        User user = new User(null, createPatientCommand.firstName(), createPatientCommand.lastName(), null);
+        User user = new User(null, createPatientCommand.firstName(), createPatientCommand.lastName(), null, null);
         Patient patient = mapper.createPatientCommandToEntity(createPatientCommand);
         patient.setUser(user);
         return mapper.toDto(repository.save(patient));
