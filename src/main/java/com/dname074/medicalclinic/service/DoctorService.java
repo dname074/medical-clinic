@@ -1,6 +1,6 @@
 package com.dname074.medicalclinic.service;
 
-import com.dname074.medicalclinic.dto.CreateDoctorCommand;
+import com.dname074.medicalclinic.dto.command.CreateDoctorCommand;
 import com.dname074.medicalclinic.dto.DoctorDto;
 import com.dname074.medicalclinic.exception.DoctorAlreadyExistsException;
 import com.dname074.medicalclinic.exception.DoctorNotFoundException;
@@ -9,9 +9,10 @@ import com.dname074.medicalclinic.model.Doctor;
 import com.dname074.medicalclinic.model.User;
 import com.dname074.medicalclinic.repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,10 +20,10 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final DoctorMapper mapper;
 
-    public List<DoctorDto> findAllDoctors() {
-        return doctorRepository.findAll().stream()
-                .map(mapper::toDto)
-                .toList();
+    public Page<DoctorDto> findAllDoctors(int pageNumber, int pageSize) {
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize);
+        return doctorRepository.findAllWithUsers(pageRequest)
+                .map(mapper::toDto);
     }
 
     public DoctorDto getDoctorDtoById(Long id) {
@@ -34,7 +35,7 @@ public class DoctorService {
         if (doctorRepository.findByEmail(createDoctorCommand.email()).isPresent()) {
             throw new DoctorAlreadyExistsException("Doktor z podanym emailem znajduje się już w bazie");
         }
-        User user = new User(null, createDoctorCommand.firstName(), createDoctorCommand.lastName(), null, null);
+        User user = new User(null, createDoctorCommand.firstName(), createDoctorCommand.lastName());
         Doctor doctor = mapper.toEntity(createDoctorCommand);
         doctor.setUser(user);
         doctorRepository.save(doctor);

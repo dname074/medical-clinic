@@ -1,9 +1,10 @@
 package com.dname074.medicalclinic.controller;
 
-import com.dname074.medicalclinic.dto.CreateDoctorCommand;
+import com.dname074.medicalclinic.dto.command.CreateDoctorCommand;
 import com.dname074.medicalclinic.dto.DoctorDto;
 import com.dname074.medicalclinic.service.DoctorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,10 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,8 +24,8 @@ public class DoctorController {
     private final DoctorService service;
 
     @GetMapping
-    public List<DoctorDto> findAllDoctors() {
-        return service.findAllDoctors();
+    public Page<DoctorDto> findAllDoctors(@RequestParam(name="page") int pageNumber, @RequestParam(name="size") int pageSize) {
+        return service.findAllDoctors(pageNumber, pageSize);
     }
 
     @GetMapping("/{doctorId}")

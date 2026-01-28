@@ -3,16 +3,17 @@ package com.dname074.medicalclinic.service;
 import com.dname074.medicalclinic.exception.PatientAlreadyExistsException;
 import com.dname074.medicalclinic.exception.PatientNotFoundException;
 import com.dname074.medicalclinic.mapper.PatientMapper;
-import com.dname074.medicalclinic.dto.CreatePatientCommand;
-import com.dname074.medicalclinic.dto.ChangePasswordCommand;
+import com.dname074.medicalclinic.dto.command.CreatePatientCommand;
+import com.dname074.medicalclinic.dto.command.ChangePasswordCommand;
 import com.dname074.medicalclinic.dto.PatientDto;
 import com.dname074.medicalclinic.model.Patient;
 import com.dname074.medicalclinic.model.User;
 import com.dname074.medicalclinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,14 +21,14 @@ public class PatientService {
     private final PatientRepository repository;
     private final PatientMapper mapper;
 
-    public List<PatientDto> findAll() {
-        return repository.findAll().stream()
-                .map(mapper::toDto)
-                .toList();
+    public Page<PatientDto> findAll(int pageNumber, int pageSize) {
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize);
+        return repository.findAllWithUsers(pageRequest)
+                .map(mapper::toDto);
     }
 
-    public PatientDto getPatientDtoByEmail(String email) {
-        Patient patient = getPatientByEmail(email);
+    public PatientDto getPatientDtoById(Long patientId) {
+        Patient patient = getPatientById(patientId);
         return mapper.toDto(patient);
     }
 
@@ -35,33 +36,34 @@ public class PatientService {
         if (repository.findByEmail(createPatientCommand.email()).isPresent()) {
             throw new PatientAlreadyExistsException("Pacjent o podanym adresie email już istnieje w bazie danych");
         }
-        User user = new User(null, createPatientCommand.firstName(), createPatientCommand.lastName(), null, null);
+        User user = new User(null, createPatientCommand.firstName(), createPatientCommand.lastName());
         Patient patient = mapper.createPatientCommandToEntity(createPatientCommand);
         patient.setUser(user);
+
         return mapper.toDto(repository.save(patient));
     }
 
-    public PatientDto removePatient(String email) {
-        Patient patient = getPatientByEmail(email);
+    public PatientDto deletePatientById(Long patientId) {
+        Patient patient = getPatientById(patientId);
         repository.delete(patient);
         return mapper.toDto(patient);
     }
 
-    public PatientDto updatePatient(String email, CreatePatientCommand createPatientCommand) {
-        Patient patient = getPatientByEmail(email);
+    public PatientDto updatePatientById(Long patientId, CreatePatientCommand createPatientCommand) {
+        Patient patient = repository.findById(patientId)
+                        .orElseThrow(() -> new PatientNotFoundException("Nie znaleziono pacjenta o podanym id"));
         patient.update(createPatientCommand);
-        repository.save(patient);
-        return mapper.toDto(patient);
+        return mapper.toDto(repository.save(patient));
     }
 
-    public PatientDto modifyPatientPassword(String email, ChangePasswordCommand newPassword) {
-        Patient patient = getPatientByEmail(email);
+    public PatientDto modifyPatientPasswordById(Long patientId, ChangePasswordCommand newPassword) {
+        Patient patient = getPatientById(patientId);
         patient.setPassword(mapper.changePasswordCommandToEntity(newPassword));
         return mapper.toDto(patient);
     }
 
-    private Patient getPatientByEmail(String email) {
-        return repository.findByEmail(email)
+    private Patient getPatientById(Long patientId) {
+        return repository.findById(patientId)
                 .orElseThrow(() -> new PatientNotFoundException("Nie udało się znaleźć pacjenta o podanym emailu"));
     }
 }

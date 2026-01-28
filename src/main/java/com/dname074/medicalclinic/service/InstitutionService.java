@@ -1,6 +1,6 @@
 package com.dname074.medicalclinic.service;
 
-import com.dname074.medicalclinic.dto.CreateInstitutionCommand;
+import com.dname074.medicalclinic.dto.command.CreateInstitutionCommand;
 import com.dname074.medicalclinic.dto.DoctorDto;
 import com.dname074.medicalclinic.dto.InstitutionDto;
 import com.dname074.medicalclinic.exception.DoctorNotFoundException;
@@ -13,9 +13,10 @@ import com.dname074.medicalclinic.model.Institution;
 import com.dname074.medicalclinic.repository.DoctorRepository;
 import com.dname074.medicalclinic.repository.InstitutionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,10 +26,10 @@ public class InstitutionService {
     private final InstitutionMapper institutionMapper;
     private final DoctorMapper doctorMapper;
 
-    public List<InstitutionDto> findAllInstitutions() {
-        return institutionRepository.findAll().stream()
-                .map(institutionMapper::toDto)
-                .toList();
+    public Page<InstitutionDto> findAllInstitutions(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return institutionRepository.findAllWithDoctors(pageable)
+                .map(institutionMapper::toDto);
     }
 
     public InstitutionDto getInstitutionDtoById(Long id) {

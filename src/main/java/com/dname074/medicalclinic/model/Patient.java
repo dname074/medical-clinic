@@ -1,6 +1,6 @@
 package com.dname074.medicalclinic.model;
 
-import com.dname074.medicalclinic.dto.CreatePatientCommand;
+import com.dname074.medicalclinic.dto.command.CreatePatientCommand;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,13 +11,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
-@Data
 @NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name="patients",
         uniqueConstraints = {
@@ -37,7 +40,7 @@ public class Patient {
     private String phoneNumber;
     @Column(name="birthday")
     private LocalDate birthday;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name="user_id", referencedColumnName = "id")
     private User user;
 
@@ -49,5 +52,31 @@ public class Patient {
         setBirthday(createPatientCommand.birthday());
         user.setFirstName(createPatientCommand.firstName());
         user.setLastName(createPatientCommand.lastName());
+    }
+
+    @Override
+    public String toString() {
+        return "Patient{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", idCardNo=" + idCardNo +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", birthday=" + birthday +
+                ", user_id=" + user.getId() +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Patient patient = (Patient) o;
+        return id != null && Objects.equals(id, patient.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

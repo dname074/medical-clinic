@@ -1,4 +1,4 @@
-package com.dname074.medicalclinic.dto;
+package com.dname074.medicalclinic.dto.command;
 
 import com.dname074.medicalclinic.model.Specialization;
 

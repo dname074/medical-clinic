@@ -1,9 +1,10 @@
 package com.dname074.medicalclinic.model;
 
-import com.dname074.medicalclinic.dto.CreateInstitutionCommand;
+import com.dname074.medicalclinic.dto.command.CreateInstitutionCommand;
 import com.dname074.medicalclinic.exception.DoctorAlreadyExistsException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,13 +14,16 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
+import java.util.Objects;
 
-@Data
 @NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "institutions",
         uniqueConstraints = {
@@ -34,7 +38,7 @@ public class Institution {
     private String zipCode;
     private String street;
     private Integer placeNo;
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "institution_doctor",
             joinColumns = @JoinColumn(name = "institution_id"),
             inverseJoinColumns = @JoinColumn(name="doctor_id")
@@ -70,5 +74,33 @@ public class Institution {
         for (Doctor doctor : doctors) {
             doctor.getInstitutions().remove(this);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Institution{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", town='" + town + '\'' +
+                ", zipCode='" + zipCode + '\'' +
+                ", street='" + street + '\'' +
+                ", placeNo=" + placeNo +
+                ", doctors_ids=" + doctors.stream()
+                .map(Doctor::getId)
+                .toList() +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this==o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Institution that = (Institution) o;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

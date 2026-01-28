@@ -1,10 +1,11 @@
 package com.dname074.medicalclinic.controller;
 
-import com.dname074.medicalclinic.dto.CreateInstitutionCommand;
+import com.dname074.medicalclinic.dto.command.CreateInstitutionCommand;
 import com.dname074.medicalclinic.dto.DoctorDto;
 import com.dname074.medicalclinic.dto.InstitutionDto;
 import com.dname074.medicalclinic.service.InstitutionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,8 +26,8 @@ public class InstitutionController {
     private final InstitutionService service;
 
     @GetMapping
-    public List<InstitutionDto> findAllInstitutions() {
-        return service.findAllInstitutions();
+    public Page<InstitutionDto> findAllInstitutions(@RequestParam(name="page") int pageNumber, @RequestParam(name="pageSize") int pageSize) {
+        return service.findAllInstitutions(pageNumber, pageSize);
     }
 
     @GetMapping("/{institutionId}")
