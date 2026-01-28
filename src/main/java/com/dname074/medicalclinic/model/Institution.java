@@ -27,8 +27,8 @@ import java.util.Objects;
 @Entity
 @Table(name = "institutions",
         uniqueConstraints = {
-        @UniqueConstraint(columnNames = "name")
-})
+                @UniqueConstraint(columnNames = "name")
+        })
 public class Institution {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +41,7 @@ public class Institution {
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "institution_doctor",
             joinColumns = @JoinColumn(name = "institution_id"),
-            inverseJoinColumns = @JoinColumn(name="doctor_id")
+            inverseJoinColumns = @JoinColumn(name = "doctor_id")
     )
     private List<Doctor> doctors;
 
@@ -56,11 +56,9 @@ public class Institution {
     public void addDoctor(Doctor newDoctor) {
         boolean exists = doctors.stream()
                 .anyMatch(doctor -> doctor.getEmail().equals(newDoctor.getEmail()));
-
         if (exists) {
             throw new DoctorAlreadyExistsException("Podany doktor należy już do tej placówki");
         }
-
         doctors.add(newDoctor);
     }
 
@@ -93,7 +91,7 @@ public class Institution {
 
     @Override
     public boolean equals(Object o) {
-        if (this==o) return true;
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Institution that = (Institution) o;
         return id != null && Objects.equals(id, that.id);

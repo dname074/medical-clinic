@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     Optional<Doctor> findByEmail(String email);
+
     @Query("select distinct d from Doctor d left join fetch d.institutions join fetch d.user")
     Page<Doctor> findAllWithUsers(Pageable pageable);
 }

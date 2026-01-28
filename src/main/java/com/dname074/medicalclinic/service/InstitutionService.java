@@ -14,7 +14,6 @@ import com.dname074.medicalclinic.repository.DoctorRepository;
 import com.dname074.medicalclinic.repository.InstitutionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +25,8 @@ public class InstitutionService {
     private final InstitutionMapper institutionMapper;
     private final DoctorMapper doctorMapper;
 
-    public Page<InstitutionDto> findAllInstitutions(int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return institutionRepository.findAllWithDoctors(pageable)
+    public Page<InstitutionDto> findAllInstitutions(Pageable pageRequest) {
+        return institutionRepository.findAllWithDoctors(pageRequest)
                 .map(institutionMapper::toDto);
     }
 

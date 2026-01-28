@@ -10,7 +10,6 @@ import com.dname074.medicalclinic.model.User;
 import com.dname074.medicalclinic.repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +19,7 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final DoctorMapper mapper;
 
-    public Page<DoctorDto> findAllDoctors(int pageNumber, int pageSize) {
-        Pageable pageRequest = PageRequest.of(pageNumber, pageSize);
+    public Page<DoctorDto> findAllDoctors(Pageable pageRequest) {
         return doctorRepository.findAllWithUsers(pageRequest)
                 .map(mapper::toDto);
     }

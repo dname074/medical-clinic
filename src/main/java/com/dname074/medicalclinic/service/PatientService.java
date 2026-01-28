@@ -11,7 +11,6 @@ import com.dname074.medicalclinic.model.User;
 import com.dname074.medicalclinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +20,7 @@ public class PatientService {
     private final PatientRepository repository;
     private final PatientMapper mapper;
 
-    public Page<PatientDto> findAll(int pageNumber, int pageSize) {
-        Pageable pageRequest = PageRequest.of(pageNumber, pageSize);
+    public Page<PatientDto> findAll(Pageable pageRequest) {
         return repository.findAllWithUsers(pageRequest)
                 .map(mapper::toDto);
     }
@@ -37,9 +35,8 @@ public class PatientService {
             throw new PatientAlreadyExistsException("Pacjent o podanym adresie email już istnieje w bazie danych");
         }
         User user = new User(null, createPatientCommand.firstName(), createPatientCommand.lastName());
-        Patient patient = mapper.createPatientCommandToEntity(createPatientCommand);
+        Patient patient = mapper.toEntity(createPatientCommand);
         patient.setUser(user);
-
         return mapper.toDto(repository.save(patient));
     }
 

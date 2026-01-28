@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface InstitutionRepository extends JpaRepository<Institution, Long> {
     Optional<Institution> findByName(String name);
+
     @Query("select distinct i from Institution i left join fetch i.doctors") // dzieki left join, nawet gdy instytucja nie ma doktora to zostanie zwrócona w wyniku
     Page<Institution> findAllWithDoctors(Pageable pageable);
 }

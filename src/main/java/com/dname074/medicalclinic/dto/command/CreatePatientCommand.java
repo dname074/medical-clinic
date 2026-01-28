@@ -4,10 +4,9 @@ import java.time.LocalDate;
 
 public record CreatePatientCommand(String email,
         String password,
-        int idCardNo,
+        String idCardNo,
         String firstName,
         String lastName,
         String phoneNumber,
         LocalDate birthday) {
-
 }

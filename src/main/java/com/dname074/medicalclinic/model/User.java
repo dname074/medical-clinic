@@ -24,12 +24,6 @@ public class User {
     private Long id;
     private String firstName;
     private String lastName;
-    // Problem polegał na tym, że przy wysyłaniu requesta aby pobrać placówki, albo doktorów to hibernate wysyła również niepotrzebnie zapytanie o patients
-    // teraz user nie wie o patient i doctor, natomiast doctor i patient wiedzą o userze, w ten sposob nie bedzie niepotrzebnych zapytan do bazy
-//    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
-//    private Patient patient;
-//    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
-//    private Doctor doctor;
 
     @Override
     public String toString() {

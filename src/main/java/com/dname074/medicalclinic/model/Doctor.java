@@ -55,11 +55,9 @@ public class Doctor {
     public void addInstitution(Institution newInstitution) {
         boolean exists = institutions.stream()
                         .anyMatch(institution -> institution.getName().equals(newInstitution.getName()));
-
         if (exists) {
             throw new InstitutionExistsException("Ten doktor jest już przypisany do podanej placówki");
         }
-
         institutions.add(newInstitution);
     }
 

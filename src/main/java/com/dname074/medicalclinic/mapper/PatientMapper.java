@@ -11,8 +11,9 @@ import org.mapstruct.Mapping;
 public interface PatientMapper {
     @Mapping(target = "user.firstName", source = "firstName")
     @Mapping(target = "user.lastName", source = "lastName")
-    Patient createPatientCommandToEntity(CreatePatientCommand patientCommand);
+    Patient toEntity(CreatePatientCommand patientCommand);
     PatientDto toDto(Patient patient);
+
     default String changePasswordCommandToEntity(ChangePasswordCommand passwordCommand) {
         if (passwordCommand == null) {
             return null;

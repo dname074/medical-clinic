@@ -7,9 +7,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class MedicalClinicExceptionHandler {
-
     @ExceptionHandler(MedicalClinicException.class)
-    ResponseEntity<PatientExceptionDto> handleMedicalClinicException(MedicalClinicException exception) {
+    public ResponseEntity<PatientExceptionDto> handleMedicalClinicException(MedicalClinicException exception) {
         return ResponseEntity.status(exception.getStatus()).body(new PatientExceptionDto(exception.getMessage(), exception.getStatus()));
     }
 }

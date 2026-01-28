@@ -22,26 +22,26 @@ import java.util.Objects;
 @Getter
 @Setter
 @Entity
-@Table(name="patients",
+@Table(name = "patients",
         uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email")
+                @UniqueConstraint(columnNames = "email")
         })
 public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name="email")
+    @Column(name = "email")
     private String email;
-    @Column(name="password")
+    @Column(name = "password")
     private String password;
-    @Column(name="idCardNumber")
-    private int idCardNo;
-    @Column(name="phoneNumber")
+    @Column(name = "idCardNumber")
+    private String idCardNo;
+    @Column(name = "phoneNumber")
     private String phoneNumber;
-    @Column(name="birthday")
+    @Column(name = "birthday")
     private LocalDate birthday;
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinColumn(name="user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
     public void update(CreatePatientCommand createPatientCommand) {
@@ -50,8 +50,10 @@ public class Patient {
         setIdCardNo(createPatientCommand.idCardNo());
         setPhoneNumber(createPatientCommand.phoneNumber());
         setBirthday(createPatientCommand.birthday());
-        user.setFirstName(createPatientCommand.firstName());
-        user.setLastName(createPatientCommand.lastName());
+        if (createPatientCommand.firstName() != null && createPatientCommand.lastName() != null) {
+            user.setFirstName(createPatientCommand.firstName());
+            user.setLastName(createPatientCommand.lastName());
+        }
     }
 
     @Override
