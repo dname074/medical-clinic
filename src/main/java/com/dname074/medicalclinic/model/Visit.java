@@ -23,8 +23,8 @@ public class Visit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDateTime startDateTime;
-    private LocalDateTime endDateTime;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     @ManyToOne
     @JoinColumn(name = "patient_id", referencedColumnName = "id")
     private Patient patient;

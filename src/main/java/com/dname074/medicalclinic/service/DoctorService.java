@@ -18,16 +18,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DoctorService {
     private final DoctorRepository doctorRepository;
-    private final DoctorMapper mapper;
+    private final DoctorMapper doctorMapper;
 
     public Page<DoctorDto> findAllDoctors(Pageable pageRequest) {
         return doctorRepository.findAllWithUsers(pageRequest)
-                .map(mapper::toDto);
+                .map(doctorMapper::toDto);
     }
 
     public DoctorDto getDoctorDtoById(Long id) {
         Doctor doctor = getDoctorById(id);
-        return mapper.toDto(doctor);
+        return doctorMapper.toDto(doctor);
     }
 
     @Transactional
@@ -36,10 +36,10 @@ public class DoctorService {
             throw new DoctorAlreadyExistsException("Doktor z podanym emailem znajduje się już w bazie");
         }
         User user = new User(null, createDoctorCommand.firstName(), createDoctorCommand.lastName());
-        Doctor doctor = mapper.toEntity(createDoctorCommand);
+        Doctor doctor = doctorMapper.toEntity(createDoctorCommand);
         doctor.setUser(user);
         doctorRepository.save(doctor);
-        return mapper.toDto(doctor);
+        return doctorMapper.toDto(doctor);
     }
 
     @Transactional
@@ -47,14 +47,14 @@ public class DoctorService {
         Doctor doctor = getDoctorById(doctorId);
         doctor.update(createDoctorCommand);
         doctorRepository.save(doctor);
-        return mapper.toDto(doctor);
+        return doctorMapper.toDto(doctor);
     }
 
     @Transactional
     public DoctorDto deleteDoctorById(Long doctorId) {
         Doctor doctor = getDoctorById(doctorId);
         doctorRepository.delete(doctor);
-        return mapper.toDto(doctor);
+        return doctorMapper.toDto(doctor);
     }
 
     private Doctor getDoctorById(Long id) {
