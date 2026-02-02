@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
@@ -43,6 +44,8 @@ public class Doctor {
     private Specialization specialization;
     @ManyToMany(mappedBy = "doctors", fetch = FetchType.LAZY)
     private List<Institution> institutions;
+    @OneToMany(mappedBy = "doctor")
+    private List<Visit> visit;
 
     public void update(CreateDoctorCommand createDoctorCommand) {
         this.email = createDoctorCommand.email();
