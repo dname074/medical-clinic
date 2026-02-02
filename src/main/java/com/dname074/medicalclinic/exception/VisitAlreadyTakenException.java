@@ -2,8 +2,8 @@ package com.dname074.medicalclinic.exception;
 
 import org.springframework.http.HttpStatus;
 
-public class DateAlreadyOccupiedException extends MedicalClinicException {
-    public DateAlreadyOccupiedException(String message) {
+public class VisitAlreadyTakenException extends MedicalClinicException {
+    public VisitAlreadyTakenException(String message) {
         super(message, HttpStatus.CONFLICT);
     }
 }

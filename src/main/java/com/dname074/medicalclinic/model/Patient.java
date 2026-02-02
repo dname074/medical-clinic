@@ -46,7 +46,7 @@ public class Patient {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
     @OneToMany(mappedBy = "patient")
-    private List<Visit> visit;
+    private List<Visit> visits;
 
     public void update(CreatePatientCommand createPatientCommand) {
         setEmail(createPatientCommand.email());
@@ -60,17 +60,8 @@ public class Patient {
         }
     }
 
-    @Override
-    public String toString() {
-        return "Patient{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", idCardNo=" + idCardNo +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", birthday=" + birthday +
-                ", user_id=" + user.getId() +
-                '}';
+    public void addVisit(Visit newVisit) {
+        visits.add(newVisit);
     }
 
     @Override
@@ -84,5 +75,18 @@ public class Patient {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Patient{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", idCardNo=" + idCardNo +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", birthday=" + birthday +
+                ", user_id=" + user.getId() +
+                '}';
     }
 }

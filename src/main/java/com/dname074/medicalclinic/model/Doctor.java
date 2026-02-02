@@ -45,7 +45,7 @@ public class Doctor {
     @ManyToMany(mappedBy = "doctors", fetch = FetchType.LAZY)
     private List<Institution> institutions;
     @OneToMany(mappedBy = "doctor")
-    private List<Visit> visit;
+    private List<Visit> visits;
 
     public void update(CreateDoctorCommand createDoctorCommand) {
         this.email = createDoctorCommand.email();
@@ -62,6 +62,10 @@ public class Doctor {
             throw new InstitutionExistsException("Ten doktor jest już przypisany do podanej placówki");
         }
         institutions.add(newInstitution);
+    }
+
+    public void addVisit(Visit newVisit) {
+        visits.add(newVisit);
     }
 
     @PreRemove
