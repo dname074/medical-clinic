@@ -9,6 +9,7 @@ import com.dname074.medicalclinic.dto.PatientDto;
 import com.dname074.medicalclinic.model.Patient;
 import com.dname074.medicalclinic.model.User;
 import com.dname074.medicalclinic.repository.PatientRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ public class PatientService {
         return mapper.toDto(patient);
     }
 
+    @Transactional
     public PatientDto addPatient(CreatePatientCommand createPatientCommand) {
         if (repository.findByEmail(createPatientCommand.email()).isPresent()) {
             throw new PatientAlreadyExistsException("Pacjent o podanym adresie email już istnieje w bazie danych");
@@ -40,12 +42,14 @@ public class PatientService {
         return mapper.toDto(repository.save(patient));
     }
 
+    @Transactional
     public PatientDto deletePatientById(Long patientId) {
         Patient patient = getPatientById(patientId);
         repository.delete(patient);
         return mapper.toDto(patient);
     }
 
+    @Transactional
     public PatientDto updatePatientById(Long patientId, CreatePatientCommand createPatientCommand) {
         Patient patient = repository.findById(patientId)
                         .orElseThrow(() -> new PatientNotFoundException("Nie znaleziono pacjenta o podanym id"));
@@ -53,6 +57,7 @@ public class PatientService {
         return mapper.toDto(repository.save(patient));
     }
 
+    @Transactional
     public PatientDto modifyPatientPasswordById(Long patientId, ChangePasswordCommand newPassword) {
         Patient patient = getPatientById(patientId);
         patient.setPassword(mapper.changePasswordCommandToEntity(newPassword));

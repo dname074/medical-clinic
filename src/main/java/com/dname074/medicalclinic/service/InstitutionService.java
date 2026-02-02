@@ -12,6 +12,7 @@ import com.dname074.medicalclinic.model.Doctor;
 import com.dname074.medicalclinic.model.Institution;
 import com.dname074.medicalclinic.repository.DoctorRepository;
 import com.dname074.medicalclinic.repository.InstitutionRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +36,7 @@ public class InstitutionService {
         return institutionMapper.toDto(institution);
     }
 
+    @Transactional
     public InstitutionDto addInstitution(CreateInstitutionCommand createInstitutionCommand) {
         if (institutionRepository.findByName(createInstitutionCommand.name()).isPresent()) {
             throw new InstitutionExistsException("Podana placówka już istnieje w systemie");
@@ -44,6 +46,7 @@ public class InstitutionService {
         return institutionMapper.toDto(institution);
     }
 
+    @Transactional
     public InstitutionDto updateInstitution(CreateInstitutionCommand createInstitutionCommand, Long institutionId) {
         Institution institution = getInstitutionById(institutionId);
         institution.update(createInstitutionCommand);
@@ -51,6 +54,7 @@ public class InstitutionService {
         return institutionMapper.toDto(institution);
     }
 
+    @Transactional
     public DoctorDto assignDoctorToInstitution(Long doctorId, Long institutionId) {
         Institution institution = getInstitutionById(institutionId);
         Doctor doctor = doctorRepository.findById(doctorId)
@@ -62,12 +66,14 @@ public class InstitutionService {
         return doctorMapper.toDto(doctor);
     }
 
+    @Transactional
     public InstitutionDto deleteInstitutionById(Long institutionId) {
         Institution institution = getInstitutionById(institutionId);
         institutionRepository.delete(institution);
         return institutionMapper.toDto(institution);
     }
 
+    @Transactional
     public DoctorDto removeDoctorFromInstitution(Long institutionId, Long doctorId) {
         Institution institution = getInstitutionById(institutionId);
         Doctor doctor = doctorRepository.findById(doctorId)
