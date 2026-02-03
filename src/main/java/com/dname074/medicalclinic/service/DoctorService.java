@@ -2,8 +2,8 @@ package com.dname074.medicalclinic.service;
 
 import com.dname074.medicalclinic.dto.command.CreateDoctorCommand;
 import com.dname074.medicalclinic.dto.DoctorDto;
-import com.dname074.medicalclinic.exception.DoctorAlreadyExistsException;
-import com.dname074.medicalclinic.exception.DoctorNotFoundException;
+import com.dname074.medicalclinic.exception.doctor.DoctorAlreadyExistsException;
+import com.dname074.medicalclinic.exception.doctor.DoctorNotFoundException;
 import com.dname074.medicalclinic.mapper.DoctorMapper;
 import com.dname074.medicalclinic.model.Doctor;
 import com.dname074.medicalclinic.model.User;

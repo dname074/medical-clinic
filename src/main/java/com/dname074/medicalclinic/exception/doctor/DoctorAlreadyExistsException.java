@@ -1,5 +1,6 @@
-package com.dname074.medicalclinic.exception;
+package com.dname074.medicalclinic.exception.doctor;
 
+import com.dname074.medicalclinic.exception.MedicalClinicException;
 import org.springframework.http.HttpStatus;
 
 public class DoctorAlreadyExistsException extends MedicalClinicException {

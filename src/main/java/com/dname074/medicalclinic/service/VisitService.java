@@ -2,12 +2,12 @@ package com.dname074.medicalclinic.service;
 
 import com.dname074.medicalclinic.dto.VisitDto;
 import com.dname074.medicalclinic.dto.command.CreateVisitCommand;
-import com.dname074.medicalclinic.exception.DoctorNotFoundException;
-import com.dname074.medicalclinic.exception.InvalidVisitException;
-import com.dname074.medicalclinic.exception.PatientNotFoundException;
-import com.dname074.medicalclinic.exception.VisitAlreadyTakenException;
-import com.dname074.medicalclinic.exception.VisitExpiredException;
-import com.dname074.medicalclinic.exception.VisitNotFoundException;
+import com.dname074.medicalclinic.exception.doctor.DoctorNotFoundException;
+import com.dname074.medicalclinic.exception.visit.InvalidVisitException;
+import com.dname074.medicalclinic.exception.patient.PatientNotFoundException;
+import com.dname074.medicalclinic.exception.visit.VisitAlreadyTakenException;
+import com.dname074.medicalclinic.exception.visit.VisitExpiredException;
+import com.dname074.medicalclinic.exception.visit.VisitNotFoundException;
 import com.dname074.medicalclinic.mapper.VisitMapper;
 import com.dname074.medicalclinic.model.Doctor;
 import com.dname074.medicalclinic.model.Patient;
@@ -54,11 +54,11 @@ public class VisitService {
             throw new VisitExpiredException("Ten termin wizyty nie jest już dostępny");
         }
         visit.setPatient(patient);
+        patient.addVisit(visit);
         patientRepository.save(patient);
         return visitMapper.toDto(visitRepository.save(visit));
     }
 
-    // todo: przeniesc czesc do walidacji w encji
     private void validateVisitDate(LocalDateTime startDate, LocalDateTime endDate) {
         if (startDate.isAfter(endDate)) {
             throw new InvalidVisitException("Data początkowa wizyty nie może być po dacie końcowej");

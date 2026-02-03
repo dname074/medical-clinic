@@ -1,7 +1,7 @@
 package com.dname074.medicalclinic.model;
 
 import com.dname074.medicalclinic.dto.command.CreateInstitutionCommand;
-import com.dname074.medicalclinic.exception.DoctorAlreadyExistsException;
+import com.dname074.medicalclinic.exception.doctor.DoctorAlreadyExistsException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

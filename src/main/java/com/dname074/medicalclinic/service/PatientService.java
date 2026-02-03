@@ -1,7 +1,7 @@
 package com.dname074.medicalclinic.service;
 
-import com.dname074.medicalclinic.exception.PatientAlreadyExistsException;
-import com.dname074.medicalclinic.exception.PatientNotFoundException;
+import com.dname074.medicalclinic.exception.patient.PatientAlreadyExistsException;
+import com.dname074.medicalclinic.exception.patient.PatientNotFoundException;
 import com.dname074.medicalclinic.mapper.PatientMapper;
 import com.dname074.medicalclinic.dto.command.CreatePatientCommand;
 import com.dname074.medicalclinic.dto.command.ChangePasswordCommand;
