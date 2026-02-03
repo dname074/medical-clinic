@@ -31,8 +31,8 @@ public class InstitutionService {
                 .map(institutionMapper::toDto);
     }
 
-    public InstitutionDto getInstitutionDtoById(Long id) {
-        Institution institution = getInstitutionById(id);
+    public InstitutionDto getInstitutionDtoById(Long institutionId) {
+        Institution institution = getInstitutionById(institutionId);
         return institutionMapper.toDto(institution);
     }
 
@@ -57,8 +57,7 @@ public class InstitutionService {
     @Transactional
     public DoctorDto assignDoctorToInstitution(Long doctorId, Long institutionId) {
         Institution institution = getInstitutionById(institutionId);
-        Doctor doctor = doctorRepository.findById(doctorId)
-                .orElseThrow(() -> new DoctorNotFoundException("Nie znaleziono doktora o podanym id"));
+        Doctor doctor = getDoctorById(doctorId);
         institution.addDoctor(doctor);
         doctor.addInstitution(institution);
         institutionRepository.save(institution);
@@ -76,16 +75,20 @@ public class InstitutionService {
     @Transactional
     public DoctorDto removeDoctorFromInstitution(Long institutionId, Long doctorId) {
         Institution institution = getInstitutionById(institutionId);
-        Doctor doctor = doctorRepository.findById(doctorId)
-                .orElseThrow(() -> new DoctorNotFoundException("Nie znaleziono doktora o podanym id"));
+        Doctor doctor = getDoctorById(doctorId);
         institution.removeDoctor(doctor);
         doctorRepository.save(doctor);
         institutionRepository.save(institution);
         return doctorMapper.toDto(doctor);
     }
 
-    private Institution getInstitutionById(Long id) {
-        return institutionRepository.findById(id)
+    private Institution getInstitutionById(Long institutionId) {
+        return institutionRepository.findById(institutionId)
                 .orElseThrow(() -> new InstitutionNotFoundException("Nie znaleziono instytucji o podanym id"));
+    }
+
+    private Doctor getDoctorById(Long doctorId) {
+        return doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new DoctorNotFoundException("Nie znaleziono doktora o podanym id"));
     }
 }

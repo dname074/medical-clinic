@@ -31,13 +31,13 @@ public class InstitutionController {
     }
 
     @GetMapping("/{institutionId}")
-    public InstitutionDto findInstitutionById(@PathVariable Long id) {
-        return service.getInstitutionDtoById(id);
+    public InstitutionDto findInstitutionById(@PathVariable Long institutionId) {
+        return service.getInstitutionDtoById(institutionId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public InstitutionDto addInstitutionById(@RequestBody CreateInstitutionCommand createInstitutionCommand) {
+    public InstitutionDto addInstitution(@RequestBody CreateInstitutionCommand createInstitutionCommand) {
         return service.addInstitution(createInstitutionCommand);
     }
 
