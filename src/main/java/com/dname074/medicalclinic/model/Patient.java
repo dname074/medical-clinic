@@ -54,7 +54,7 @@ public class Patient {
         setIdCardNo(createPatientCommand.idCardNo());
         setPhoneNumber(createPatientCommand.phoneNumber());
         setBirthday(createPatientCommand.birthday());
-        if (createPatientCommand.firstName() != null && createPatientCommand.lastName() != null) {
+        if (user != null) {
             user.setFirstName(createPatientCommand.firstName());
             user.setLastName(createPatientCommand.lastName());
         }
