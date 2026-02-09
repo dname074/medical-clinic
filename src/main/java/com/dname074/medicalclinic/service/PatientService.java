@@ -59,8 +59,7 @@ public class PatientService {
 
     @Transactional
     public PatientDto updatePatientById(Long patientId, CreatePatientCommand createPatientCommand) {
-        Patient patient = patientRepository.findById(patientId)
-                        .orElseThrow(() -> new PatientNotFoundException("Nie znaleziono pacjenta o podanym id"));
+        Patient patient = getPatientById(patientId);
         patient.update(createPatientCommand);
         patientRepository.save(patient);
         return mapper.toDto(patient);
@@ -73,8 +72,8 @@ public class PatientService {
         return mapper.toDto(patient);
     }
 
-    private Patient getPatientById(Long patientId) {
+    protected Patient getPatientById(Long patientId) {
         return patientRepository.findById(patientId)
-                .orElseThrow(() -> new PatientNotFoundException("Nie udało się znaleźć pacjenta o podanym emailu"));
+                .orElseThrow(() -> new PatientNotFoundException("Nie udało się znaleźć pacjenta o podanym id"));
     }
 }
