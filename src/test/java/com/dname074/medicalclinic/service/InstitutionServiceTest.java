@@ -59,6 +59,7 @@ public class InstitutionServiceTest {
         this.doctorRepository = Mockito.mock(DoctorRepository.class);
         this.institutionMapper = Mappers.getMapper(InstitutionMapper.class);
         this.doctorMapper = Mappers.getMapper(DoctorMapper.class);
+        this.pageMapper = Mappers.getMapper(PageMapper.class);
         this.institutionService = new InstitutionService(institutionRepository, doctorRepository, institutionMapper, doctorMapper, pageMapper);
     }
 
@@ -68,7 +69,7 @@ public class InstitutionServiceTest {
         Institution institution = createInstitution();
         List<Institution> institutions = List.of(institution);
         Pageable pageable = PageRequest.of(0, 1);
-        Page<Institution> page = new PageImpl<Institution>(institutions, pageable, 1);
+        Page<Institution> page = new PageImpl<>(institutions, pageable, 1);
         when(institutionRepository.findAllWithDoctors(pageable)).thenReturn(page);
         // when
         PageDto<InstitutionDto> result = institutionService.findAllInstitutions(pageable);
@@ -208,6 +209,7 @@ public class InstitutionServiceTest {
         // when
         DoctorDto result = institutionService.assignDoctorToInstitution(doctorId, institutionId);
         // then
+        // do poprawy
         Assertions.assertAll(
                 () -> assertTrue(doctor.getInstitutions().contains(institution)),
                 () -> assertTrue(institution.getDoctors().contains(doctor))

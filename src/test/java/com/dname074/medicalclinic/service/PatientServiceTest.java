@@ -14,12 +14,10 @@ import com.dname074.medicalclinic.model.Patient;
 import com.dname074.medicalclinic.model.User;
 import com.dname074.medicalclinic.repository.PatientRepository;
 import com.dname074.medicalclinic.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,7 +28,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Objects.nonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -63,7 +60,7 @@ public class PatientServiceTest {
         // given
         Patient patient = createPatient();
         Pageable pageRequest = PageRequest.of(0, 1);
-        Page page = new PageImpl(List.of(patient), pageRequest, 1L);
+        Page<Patient> page = new PageImpl<>(List.of(patient), pageRequest, 1L);
         when(patientRepository.findAllWithUsers(pageRequest)).thenReturn(page);
         // when
         PageDto<PatientDto> patients = service.findAll(pageRequest);
@@ -193,9 +190,7 @@ public class PatientServiceTest {
     void deletePatientById_PatientNotFound_ExceptionThrown() {
         // given
         Long patientId = 1L;
-        Patient patient = createPatient();
-        when(patientRepository.findById(patientId)).thenThrow(PatientNotFoundException.class);
-        doNothing().when(patientRepository).delete(patient);
+        when(patientRepository.findById(patientId)).thenReturn(Optional.empty());
         // when i then
         PatientNotFoundException exception = assertThrows(PatientNotFoundException.class,() -> service.deletePatientById(patientId));
         assertEquals("Nie udało się znaleźć pacjenta o podanym id", exception.getMessage());
@@ -236,7 +231,7 @@ public class PatientServiceTest {
         Long patientId = 1L;
         CreatePatientCommand createPatientCommandNewData = new CreatePatientCommand("newEmail@onet.pl", "123", "55", "Jan", "Kowalski",
                 "555555555", LocalDate.of(2007, 11, 25));
-        when(patientRepository.findById(1L)).thenReturn(Optional.empty());
+        when(patientRepository.findById(patientId)).thenReturn(Optional.empty());
         // when & then
         PatientNotFoundException exception = assertThrows(PatientNotFoundException.class, () -> service.updatePatientById(1L, createPatientCommandNewData));
         assertEquals("Nie udało się znaleźć pacjenta o podanym id", exception.getMessage());

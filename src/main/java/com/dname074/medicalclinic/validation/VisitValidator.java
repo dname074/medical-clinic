@@ -5,12 +5,14 @@ import com.dname074.medicalclinic.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
 public class VisitValidator {
     private final VisitRepository visitRepository;
+    private final Clock clock;
 
     public void validateVisitDate(LocalDateTime startDate, LocalDateTime endDate) {
         if (startDate.isAfter(endDate)) {
@@ -22,7 +24,7 @@ public class VisitValidator {
         if (startDate.getMinute() % 15 != 0 || endDate.getMinute() % 15 != 0 || startDate.getSecond() != 0 || endDate.getSecond() != 0) {
             throw new InvalidVisitException("Godziny wizyt muszą być w pełnym kwadransie godziny");
         }
-        if (startDate.isBefore(LocalDateTime.now())) {
+        if (startDate.isBefore(LocalDateTime.now(clock))) {
             throw new InvalidVisitException("Data wizyty nie może poprzedzać aktualnej daty");
         }
         if (visitRepository.existsByStartDateLessThanAndEndDateGreaterThan(endDate, startDate)) {

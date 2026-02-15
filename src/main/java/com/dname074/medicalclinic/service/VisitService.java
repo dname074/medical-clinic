@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 @Service
@@ -33,6 +34,7 @@ public class VisitService {
     private final VisitMapper visitMapper;
     private final VisitValidator validator;
     private final PageMapper pageMapper;
+    private final Clock clock;
 
     public PageDto<VisitDto> getVisitsByPatientId(Long id, Pageable pageRequest) {
         return pageMapper.toVisitDto(visitRepository.findByPatientId(id, pageRequest)
@@ -59,7 +61,10 @@ public class VisitService {
         if (visit.getPatient() != null) {
             throw new VisitAlreadyTakenException("Ten termin wizyty jest już zajęty");
         }
-        if (visit.getStartDate().isBefore(LocalDateTime.now())) {
+        // clock zastosowalem, poniewaz nie mialem jak testowac tej metody bez niego
+        // dane testowe po jakims czasie bylyby nieaktualne i testy zaczelyby sie wywalac
+        // w pracy zrobiloby to zamęt i znowu duzo czasu by poszlo na szukanie bledu
+        if (visit.getStartDate().isBefore(LocalDateTime.now(clock))) {
             throw new VisitExpiredException("Ten termin wizyty poprzedza aktualną datę i nie jest już dostępny");
         }
         visit.setPatient(patient);
