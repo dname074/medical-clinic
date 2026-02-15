@@ -1,5 +1,6 @@
 package com.dname074.medicalclinic.service;
 
+import com.dname074.medicalclinic.dto.PageDto;
 import com.dname074.medicalclinic.dto.command.CreateInstitutionCommand;
 import com.dname074.medicalclinic.dto.DoctorDto;
 import com.dname074.medicalclinic.dto.InstitutionDto;
@@ -8,13 +9,13 @@ import com.dname074.medicalclinic.exception.institution.InstitutionExistsExcepti
 import com.dname074.medicalclinic.exception.institution.InstitutionNotFoundException;
 import com.dname074.medicalclinic.mapper.DoctorMapper;
 import com.dname074.medicalclinic.mapper.InstitutionMapper;
+import com.dname074.medicalclinic.mapper.PageMapper;
 import com.dname074.medicalclinic.model.Doctor;
 import com.dname074.medicalclinic.model.Institution;
 import com.dname074.medicalclinic.repository.DoctorRepository;
 import com.dname074.medicalclinic.repository.InstitutionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +26,11 @@ public class InstitutionService {
     private final DoctorRepository doctorRepository;
     private final InstitutionMapper institutionMapper;
     private final DoctorMapper doctorMapper;
+    private final PageMapper pageMapper;
 
-    public Page<InstitutionDto> findAllInstitutions(Pageable pageRequest) {
-        return institutionRepository.findAllWithDoctors(pageRequest)
-                .map(institutionMapper::toDto);
+    public PageDto<InstitutionDto> findAllInstitutions(Pageable pageRequest) {
+        return pageMapper.toInstitutionDto(institutionRepository.findAllWithDoctors(pageRequest)
+                .map(institutionMapper::toDto));
     }
 
     public InstitutionDto getInstitutionDtoById(Long institutionId) {

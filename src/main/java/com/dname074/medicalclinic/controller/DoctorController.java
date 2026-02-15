@@ -1,10 +1,10 @@
 package com.dname074.medicalclinic.controller;
 
+import com.dname074.medicalclinic.dto.PageDto;
 import com.dname074.medicalclinic.dto.command.CreateDoctorCommand;
 import com.dname074.medicalclinic.dto.DoctorDto;
 import com.dname074.medicalclinic.service.DoctorService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,7 +24,7 @@ public class DoctorController {
     private final DoctorService service;
 
     @GetMapping
-    public Page<DoctorDto> findAllDoctors(Pageable pageRequest) {
+    public PageDto<DoctorDto> findAllDoctors(Pageable pageRequest) {
         return service.findAllDoctors(pageRequest);
     }
 
