@@ -1,10 +1,10 @@
 package com.dname074.medicalclinic.controller;
 
+import com.dname074.medicalclinic.dto.PageDto;
 import com.dname074.medicalclinic.dto.VisitDto;
 import com.dname074.medicalclinic.dto.command.CreateVisitCommand;
 import com.dname074.medicalclinic.service.VisitService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +24,7 @@ public class VisitController {
     private final VisitService service;
 
     @GetMapping("/patients")
-    public Page<VisitDto> getVisitsByPatientId(@RequestParam Long id, Pageable pageRequest) {
+    public PageDto<VisitDto> getVisitsByPatientId(@RequestParam Long id, Pageable pageRequest) {
         return service.getVisitsByPatientId(id, pageRequest);
     }
 

@@ -1,5 +1,6 @@
 package com.dname074.medicalclinic.controller;
 
+import com.dname074.medicalclinic.dto.PageDto;
 import com.dname074.medicalclinic.dto.command.CreatePatientCommand;
 import com.dname074.medicalclinic.dto.command.ChangePasswordCommand;
 import com.dname074.medicalclinic.dto.PatientDto;
@@ -26,7 +27,7 @@ public class PatientController {
     private final PatientService patientService;
 
     @GetMapping
-    public Page<PatientDto> findAll(Pageable pageRequest) {
+    public PageDto<PatientDto> findAll(Pageable pageRequest) {
         return patientService.findAll(pageRequest);
     }
 

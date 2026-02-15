@@ -21,6 +21,8 @@ import lombok.Setter;
 import java.util.List;
 import java.util.Objects;
 
+import static java.util.Objects.nonNull;
+
 @NoArgsConstructor
 @Getter
 @Setter
@@ -76,17 +78,20 @@ public class Institution {
 
     @Override
     public String toString() {
-        return "Institution{" +
+        String institutionString = "Institution{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", town='" + town + '\'' +
                 ", zipCode='" + zipCode + '\'' +
                 ", street='" + street + '\'' +
-                ", placeNo=" + placeNo +
-                ", doctors_ids=" + doctors.stream()
-                .map(Doctor::getId)
-                .toList() +
-                '}';
+                ", placeNo=" + placeNo;
+        if (doctors != null) {
+            institutionString += ", doctors_ids=" + doctors.stream()
+                    .map(Doctor::getId)
+                    .toList() +
+                    '}';
+        }
+        return institutionString;
     }
 
     @Override

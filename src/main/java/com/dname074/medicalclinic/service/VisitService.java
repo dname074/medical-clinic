@@ -1,5 +1,6 @@
 package com.dname074.medicalclinic.service;
 
+import com.dname074.medicalclinic.dto.PageDto;
 import com.dname074.medicalclinic.dto.VisitDto;
 import com.dname074.medicalclinic.dto.command.CreateVisitCommand;
 import com.dname074.medicalclinic.exception.doctor.DoctorNotFoundException;
@@ -7,6 +8,7 @@ import com.dname074.medicalclinic.exception.patient.PatientNotFoundException;
 import com.dname074.medicalclinic.exception.visit.VisitAlreadyTakenException;
 import com.dname074.medicalclinic.exception.visit.VisitExpiredException;
 import com.dname074.medicalclinic.exception.visit.VisitNotFoundException;
+import com.dname074.medicalclinic.mapper.PageMapper;
 import com.dname074.medicalclinic.mapper.VisitMapper;
 import com.dname074.medicalclinic.model.Doctor;
 import com.dname074.medicalclinic.model.Patient;
@@ -17,7 +19,6 @@ import com.dname074.medicalclinic.repository.VisitRepository;
 import com.dname074.medicalclinic.validation.VisitValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +32,11 @@ public class VisitService {
     private final PatientRepository patientRepository;
     private final VisitMapper visitMapper;
     private final VisitValidator validator;
+    private final PageMapper pageMapper;
 
-    public Page<VisitDto> getVisitsByPatientId(Long id, Pageable pageRequest) {
-        return visitRepository.findByPatientId(id, pageRequest)
-                .map(visitMapper::toDto);
+    public PageDto<VisitDto> getVisitsByPatientId(Long id, Pageable pageRequest) {
+        return pageMapper.toVisitDto(visitRepository.findByPatientId(id, pageRequest)
+                .map(visitMapper::toDto));
     }
 
     @Transactional
