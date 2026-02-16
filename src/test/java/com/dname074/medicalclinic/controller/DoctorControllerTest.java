@@ -41,14 +41,19 @@ public class DoctorControllerTest {
     @Test
     void findAllDoctors_DoctorFound_PageReturned() throws Exception {
         // given
+        int page = 0;
+        int size = 1;
         DoctorDto doctorDto = createDoctor();
         List<DoctorDto> doctors = List.of(doctorDto);
-        Pageable pageable = PageRequest.of(0, 1);
-        Page<DoctorDto> page = new PageImpl<>(doctors, pageable, 1);
-        PageDto<DoctorDto> pageDto = pageMapper.toDoctorDto(page);
-        when(service.findAllDoctors(any())).thenReturn(pageDto);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<DoctorDto> doctorsPage = new PageImpl<>(doctors, pageable, 1);
+        PageDto<DoctorDto> doctorsPageDto = pageMapper.toDoctorDto(doctorsPage);
+        when(service.findAllDoctors(any())).thenReturn(doctorsPageDto);
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.get("/doctors?page=0&size=1"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/doctors")
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                )
                 .andExpect(jsonPath("$.content[0].id").value(1))
                 .andExpect(jsonPath("$.totalPages").value(1))
                 .andExpect(jsonPath("$.totalElements").value(1))

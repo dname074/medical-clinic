@@ -14,23 +14,19 @@ import com.dname074.medicalclinic.model.Specialization;
 import com.dname074.medicalclinic.model.User;
 import com.dname074.medicalclinic.repository.DoctorRepository;
 import com.dname074.medicalclinic.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Objects.nonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -65,7 +61,7 @@ public class DoctorServiceTest {
         Doctor doctor = createDoctor();
         List<Doctor> doctors = List.of(doctor);
         Pageable pageRequest = PageRequest.of(0, 1);
-        Page<Doctor> doctorsPage = new PageImpl<Doctor>(doctors, pageRequest, 1);
+        Page<Doctor> doctorsPage = new PageImpl<>(doctors, pageRequest, 1);
         when(doctorRepository.findAllWithUsers(pageRequest)).thenReturn(doctorsPage);
         // when
         PageDto<DoctorDto> result = service.findAllDoctors(pageRequest);
