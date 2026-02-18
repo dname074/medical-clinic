@@ -40,9 +40,10 @@ public class VisitService {
 
     public PageDto<VisitDto> getVisitsByPatientId(Long id, Pageable pageRequest) {
         log.info("Process of finding patient's visits started");
-        log.info("Process of finding patient's visits ended");
-        return pageMapper.toVisitDto(visitRepository.findByPatientId(id, pageRequest)
+        PageDto<VisitDto> page = pageMapper.toVisitDto(visitRepository.findByPatientId(id, pageRequest)
                 .map(visitMapper::toDto));
+        log.info("Process of finding patient's visits ended");
+        return page;
     }
 
     @Transactional

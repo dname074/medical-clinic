@@ -4,6 +4,9 @@ import com.dname074.medicalclinic.dto.DoctorDto;
 import com.dname074.medicalclinic.dto.PageDto;
 import com.dname074.medicalclinic.dto.UserDto;
 import com.dname074.medicalclinic.dto.command.CreateDoctorCommand;
+import com.dname074.medicalclinic.exception.doctor.DoctorAlreadyExistsException;
+import com.dname074.medicalclinic.exception.doctor.DoctorNotFoundException;
+import com.dname074.medicalclinic.exception.user.UserAlreadyExistsException;
 import com.dname074.medicalclinic.mapper.PageMapper;
 import com.dname074.medicalclinic.model.Specialization;
 import com.dname074.medicalclinic.service.DoctorService;
@@ -24,7 +27,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -71,12 +76,26 @@ public class DoctorControllerTest {
         when(service.getDoctorDtoById(doctorId)).thenReturn(doctorDto);
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.get("/doctors/{doctorId}", doctorId))
-                .andExpect(jsonPath("$.email").value("email"))
+                .andExpect(jsonPath("$.email").value("email@onet.pl"))
                 .andExpect(jsonPath("$.specialization").value("DERMATOLOGIST"))
                 .andExpect(jsonPath("$.user.id").value(1))
                 .andExpect(jsonPath("$.user.firstName").value("Jan"))
                 .andExpect(jsonPath("$.user.lastName").value("Kowalski"))
                 .andExpect(jsonPath("$.institutions").isEmpty());
+        verify(service,times(1)).getDoctorDtoById(1L);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void findDoctorById_DoctorNotFoundExceptionThrown_404Returned() throws Exception {
+        // given
+        Long doctorId = 1L;
+        when(service.getDoctorDtoById(doctorId)).thenThrow(new DoctorNotFoundException("Nie znaleziono doktora o podanym id"));
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.get("/doctors/{doctorId}",doctorId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono doktora o podanym id"));
         verify(service,times(1)).getDoctorDtoById(1L);
         verifyNoMoreInteractions(service);
     }
@@ -91,7 +110,7 @@ public class DoctorControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/doctors")
                 .content(objectMapper.writeValueAsString(createDoctorCommand))
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.email").value("email"))
+                .andExpect(jsonPath("$.email").value("email@onet.pl"))
                 .andExpect(jsonPath("$.specialization").value("DERMATOLOGIST"))
                 .andExpect(jsonPath("$.user.id").value(1))
                 .andExpect(jsonPath("$.user.firstName").value("Jan"))
@@ -99,6 +118,48 @@ public class DoctorControllerTest {
                 .andExpect(jsonPath("$.institutions").isEmpty());
         verify(service, times(1)).addDoctor(createDoctorCommand);
         verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void addDoctor_DoctorAlreadyExistsExceptionThrown_409Returned() throws Exception {
+        CreateDoctorCommand createDoctorCommand = makeCreateDoctorCommand();
+        when(service.addDoctor(createDoctorCommand)).thenThrow(new DoctorAlreadyExistsException("Doktor z podanym emailem znajduje się już w bazie"));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/doctors")
+                .content(objectMapper.writeValueAsString(createDoctorCommand))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Doktor z podanym emailem znajduje się już w bazie"));
+        verify(service, times(1)).addDoctor(createDoctorCommand);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void addDoctor_UserAlreadyExistsExceptionThrown_409Returned() throws Exception {
+        CreateDoctorCommand createDoctorCommand = makeCreateDoctorCommand();
+        when(service.addDoctor(createDoctorCommand)).thenThrow(new UserAlreadyExistsException("Ta osoba została już dodana do systemu"));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/doctors")
+                        .content(objectMapper.writeValueAsString(createDoctorCommand))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Ta osoba została już dodana do systemu"));
+        verify(service, times(1)).addDoctor(createDoctorCommand);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void addDoctor_ArgumentNotValid_400Returned() throws Exception {
+        CreateDoctorCommand createDoctorCommand = new CreateDoctorCommand("email", "Jan", "Kowalski", "123", Specialization.DERMATOLOGIST);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/doctors")
+                        .content(objectMapper.writeValueAsString(createDoctorCommand))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(service);
     }
 
     @Test
@@ -113,7 +174,7 @@ public class DoctorControllerTest {
                         .content(objectMapper.writeValueAsString(createDoctorCommand))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.email").value("email"))
+                .andExpect(jsonPath("$.email").value("email@onet.pl"))
                 .andExpect(jsonPath("$.specialization").value("DERMATOLOGIST"))
                 .andExpect(jsonPath("$.user.id").value(1))
                 .andExpect(jsonPath("$.user.firstName").value("Jan"))
@@ -121,6 +182,34 @@ public class DoctorControllerTest {
                 .andExpect(jsonPath("$.institutions").isEmpty());
         verify(service, times(1)).updateDoctorById(1L, createDoctorCommand);
         verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void updateDoctorById_DoctorNotFoundExceptionThrown_404Returned() throws Exception {
+        Long doctorId = 1L;
+        CreateDoctorCommand createDoctorCommand = makeCreateDoctorCommand();
+        when(service.updateDoctorById(doctorId, createDoctorCommand)).thenThrow(new DoctorNotFoundException("Nie znaleziono doktora o podanym id"));
+        mockMvc.perform(MockMvcRequestBuilders.put("/doctors/{doctorId}",doctorId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createDoctorCommand)))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono doktora o podanym id"));
+        verify(service,times(1)).updateDoctorById(1L, createDoctorCommand);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void updateDoctorById_ArgumentsNotValid_400Returned() throws Exception {
+        Long doctorId = 1L;
+        CreateDoctorCommand createDoctorCommand = new CreateDoctorCommand("email", "Jan", "Kowalski", "123", Specialization.DERMATOLOGIST);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/doctors/{doctorId}",doctorId)
+                        .content(objectMapper.writeValueAsString(createDoctorCommand))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(service);
     }
 
     @Test
@@ -132,7 +221,7 @@ public class DoctorControllerTest {
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.delete("/doctors/{doctorId}", doctorId))
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.email").value("email"))
+                .andExpect(jsonPath("$.email").value("email@onet.pl"))
                 .andExpect(jsonPath("$.specialization").value("DERMATOLOGIST"))
                 .andExpect(jsonPath("$.user.id").value(1))
                 .andExpect(jsonPath("$.user.firstName").value("Jan"))
@@ -142,12 +231,33 @@ public class DoctorControllerTest {
         verifyNoMoreInteractions(service);
     }
 
+    @Test
+    void deleteDoctorById_DoctorNotFoundExceptionThrown_404Returned() throws Exception {
+        Long doctorId = 1L;
+        when(service.deleteDoctorById(doctorId)).thenThrow(new DoctorNotFoundException("Nie znaleziono doktora o podanym id"));
+        mockMvc.perform(MockMvcRequestBuilders.delete("/doctors/{doctorId}",doctorId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono doktora o podanym id"));
+        verify(service,times(1)).deleteDoctorById(1L);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void deleteDoctorById_ArgumentsNotValid_400Returned() throws Exception {
+        String doctorId = "g";
+        mockMvc.perform(MockMvcRequestBuilders.delete("/doctors/{doctorId}",doctorId))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(service);
+    }
+
     private CreateDoctorCommand makeCreateDoctorCommand() {
-        return new CreateDoctorCommand("email", "Jan", "Kowalski", "123", Specialization.DERMATOLOGIST);
+        return new CreateDoctorCommand("email@onet.pl", "Jan", "Kowalski", "password123", Specialization.DERMATOLOGIST);
     }
 
     private DoctorDto createDoctor() {
-        return new DoctorDto(1L, "email", Specialization.DERMATOLOGIST,
+        return new DoctorDto(1L, "email@onet.pl", Specialization.DERMATOLOGIST,
                 new UserDto(1L, "Jan", "Kowalski"), List.of());
     }
 

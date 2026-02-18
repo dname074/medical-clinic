@@ -2,6 +2,7 @@ package com.dname074.medicalclinic.controller;
 
 import com.dname074.medicalclinic.dto.MedicalClinicExceptionDto;
 import com.dname074.medicalclinic.dto.PageDto;
+import com.dname074.medicalclinic.dto.ValidationExceptionDto;
 import com.dname074.medicalclinic.dto.command.CreateDoctorCommand;
 import com.dname074.medicalclinic.dto.DoctorDto;
 import com.dname074.medicalclinic.service.DoctorService;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/doctors")
@@ -36,6 +39,7 @@ public class DoctorController {
     @Operation(summary = "Get all doctors in page based on request params")
     @GetMapping
     public PageDto<DoctorDto> findAllDoctors(@ParameterObject Pageable pageRequest) {
+        log.info("Received GET /doctors request with parameters: page={}, size={}", pageRequest.getPageNumber(), pageRequest.getPageSize());
         return service.findAllDoctors(pageRequest);
     }
 
@@ -46,6 +50,11 @@ public class DoctorController {
                     @Content(mediaType = "application/json",
                     schema = @Schema(implementation = DoctorDto.class))
             }),
+            @ApiResponse(responseCode = "400", description = "Arguments not valid",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ValidationExceptionDto.class))
+                    }),
             @ApiResponse(responseCode = "404", description = "Doctor not found",
             content = {
                     @Content(mediaType = "application/json",
@@ -54,6 +63,7 @@ public class DoctorController {
     })
     @GetMapping("/{doctorId}")
     public DoctorDto findDoctorById(@PathVariable Long doctorId) {
+        log.info("Received GET /doctors/id request with id parameter {}", doctorId);
         return service.getDoctorDtoById(doctorId);
     }
 
@@ -64,6 +74,11 @@ public class DoctorController {
                     @Content(mediaType = "application/json",
                     schema = @Schema(implementation = DoctorDto.class))
             }),
+            @ApiResponse(responseCode = "400", description = "Arguments not valid",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ValidationExceptionDto.class))
+                    }),
             @ApiResponse(responseCode = "409", description = "Doctor or user already exists",
             content = {
                     @Content(mediaType = "application/json",
@@ -73,6 +88,7 @@ public class DoctorController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public DoctorDto addDoctor(@RequestBody @Valid CreateDoctorCommand createDoctorCommand) {
+        log.info("Received POST /doctors request with parameter {}", createDoctorCommand.toString());
         return service.addDoctor(createDoctorCommand);
     }
 
@@ -83,6 +99,11 @@ public class DoctorController {
                     @Content(mediaType = "application/json",
                     schema = @Schema(implementation = DoctorDto.class))
             }),
+            @ApiResponse(responseCode = "400", description = "Arguments not valid",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ValidationExceptionDto.class))
+                    }),
             @ApiResponse(responseCode = "404", description = "Doctor not found",
             content = {
                     @Content(mediaType = "application/json",
@@ -91,6 +112,7 @@ public class DoctorController {
     })
     @PutMapping("/{doctorId}")
     public DoctorDto updateDoctorById(@PathVariable Long doctorId, @RequestBody @Valid CreateDoctorCommand createDoctorCommand) {
+        log.info("Received PUT /doctors/id request with id parameter={} and body={}",doctorId, createDoctorCommand);
         return service.updateDoctorById(doctorId, createDoctorCommand);
     }
 
@@ -101,6 +123,11 @@ public class DoctorController {
                     @Content(mediaType = "application/json",
                     schema = @Schema(implementation = DoctorDto.class))
             }),
+            @ApiResponse(responseCode = "400", description = "Arguments not valid",
+            content = {
+                    @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ValidationExceptionDto.class))
+            }),
             @ApiResponse(responseCode = "404", description = "Doctor not found",
             content = {
                     @Content(mediaType = "application/json",
@@ -109,7 +136,7 @@ public class DoctorController {
     })
     @DeleteMapping("/{doctorId}")
     public DoctorDto deleteDoctorById(@PathVariable Long doctorId) {
+        log.info("Received DELETE /doctors/id request with id parameter={}", doctorId);
         return service.deleteDoctorById(doctorId);
     }
-    // todo: logi
 }
