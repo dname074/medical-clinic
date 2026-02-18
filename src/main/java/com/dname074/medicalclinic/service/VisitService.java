@@ -19,12 +19,14 @@ import com.dname074.medicalclinic.repository.VisitRepository;
 import com.dname074.medicalclinic.validation.VisitValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VisitService {
@@ -37,23 +39,28 @@ public class VisitService {
     private final Clock clock;
 
     public PageDto<VisitDto> getVisitsByPatientId(Long id, Pageable pageRequest) {
+        log.info("Process of finding patient's visits started");
+        log.info("Process of finding patient's visits ended");
         return pageMapper.toVisitDto(visitRepository.findByPatientId(id, pageRequest)
                 .map(visitMapper::toDto));
     }
 
     @Transactional
     public VisitDto addAvailableVisit(CreateVisitCommand createVisitCommand) {
+        log.info("Process of creating new visit started");
         validator.validateVisitDate(createVisitCommand.startDate(), createVisitCommand.endDate());
         Doctor doctor = doctorRepository.findById(createVisitCommand.doctorId())
                 .orElseThrow(() -> new DoctorNotFoundException("Nie znaleziono doktora o podanym id"));
         Visit visit = visitMapper.toEntity(createVisitCommand);
         visit.setDoctor(doctor);
         doctor.addVisit(visit);
+        log.info("Process of creating new visit ended");
         return visitMapper.toDto(visitRepository.save(visit));
     }
 
     @Transactional
     public VisitDto assign(Long visitId, Long patientId) {
+        log.info("Process of assigning patient to visit started");
         Visit visit = visitRepository.findById(visitId)
                 .orElseThrow(() -> new VisitNotFoundException("Nie znaleziono terminu wizyty o podanym id"));
         Patient patient = patientRepository.findById(patientId)
@@ -69,6 +76,7 @@ public class VisitService {
         }
         visit.setPatient(patient);
         patient.addVisit(visit);
+        log.info("Process of assigning patient to visit ended");
         return visitMapper.toDto(visitRepository.save(visit));
     }
 }

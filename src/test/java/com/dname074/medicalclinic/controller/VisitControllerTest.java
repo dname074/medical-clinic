@@ -6,7 +6,12 @@ import com.dname074.medicalclinic.dto.VisitDto;
 import com.dname074.medicalclinic.dto.command.CreateVisitCommand;
 import com.dname074.medicalclinic.dto.simple.SimpleDoctorDto;
 import com.dname074.medicalclinic.dto.simple.SimplePatientDto;
+import com.dname074.medicalclinic.exception.doctor.DoctorNotFoundException;
+import com.dname074.medicalclinic.exception.patient.PatientNotFoundException;
 import com.dname074.medicalclinic.exception.visit.InvalidVisitException;
+import com.dname074.medicalclinic.exception.visit.VisitAlreadyTakenException;
+import com.dname074.medicalclinic.exception.visit.VisitExpiredException;
+import com.dname074.medicalclinic.exception.visit.VisitNotFoundException;
 import com.dname074.medicalclinic.mapper.PageMapper;
 import com.dname074.medicalclinic.model.Specialization;
 import com.dname074.medicalclinic.service.VisitService;
@@ -30,8 +35,10 @@ import java.util.List;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -66,6 +73,7 @@ public class VisitControllerTest {
                         .param("page", String.valueOf(page))
                         .param("size", String.valueOf(size))
         )
+                .andDo(print())
                 .andExpect(jsonPath("$.content[0].id").value(1))
                 .andExpect(jsonPath("$.totalPages").value(1))
                 .andExpect(jsonPath("$.totalElements").value(1))
@@ -89,6 +97,7 @@ public class VisitControllerTest {
                 .content(objectMapper.writeValueAsString(createVisitCommand))
                 .contentType(MediaType.APPLICATION_JSON)
         )
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.startDate").value("2027-01-01T20:00:00"))
@@ -100,15 +109,44 @@ public class VisitControllerTest {
     }
 
     @Test
-    void addVisit_VisitFound_409Returned() throws Exception {
+    void addVisit_InvalidVisitExceptionThrown_400Returned() throws Exception {
         CreateVisitCommand createVisitCommand = makeCreateVisitCommand();
         when(service.addAvailableVisit(createVisitCommand)).thenThrow(new InvalidVisitException("Data wizyty pokrywa się z już istniejącą"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/visits")
                 .content(objectMapper.writeValueAsString(createVisitCommand))
                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Data wizyty pokrywa się z już istniejącą"));
+        verify(service, times(1)).addAvailableVisit(createVisitCommand);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void addVisit_ArgumentsNotValid_400Returned() throws Exception {
+        CreateVisitCommand createVisitCommand = new CreateVisitCommand(null,
+                LocalDateTime.of(2027, 1, 1, 20, 0, 0),
+                LocalDateTime.of(2027, 1, 1, 21, 0, 0));
+        mockMvc.perform(MockMvcRequestBuilders.post("/visits")
+                        .content(objectMapper.writeValueAsString(createVisitCommand))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(service);
+    }
+
+    @Test
+    void addVisit_DoctorNotFoundExceptionThrown_404Returned() throws Exception {
+        CreateVisitCommand createVisitCommand = makeCreateVisitCommand();
+        when(service.addAvailableVisit(createVisitCommand)).thenThrow(new DoctorNotFoundException("Nie znaleziono doktora o podanym id"));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/visits")
+                        .content(objectMapper.writeValueAsString(createVisitCommand))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono doktora o podanym id"));
         verify(service, times(1)).addAvailableVisit(createVisitCommand);
         verifyNoMoreInteractions(service);
     }
@@ -122,12 +160,73 @@ public class VisitControllerTest {
         when(service.assign(visitId, patientId)).thenReturn(visitDto);
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.patch("/visits/{visitId}/patients/{patientId}", visitId, patientId))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.startDate").value("2027-01-01T20:00:00"))
                 .andExpect(jsonPath("$.endDate").value("2027-01-01T21:00:00"))
                 .andExpect(jsonPath("$.doctor.id").value(1))
                 .andExpect(jsonPath("$.patient.id").value(1));
+        verify(service, times(1)).assign(1L, 1L);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void assign_VisitNotFoundExceptionThrown_404Returned() throws Exception {
+        // given
+        Long visitId = 1L;
+        Long patientId = 1L;
+        when(service.assign(visitId, patientId)).thenThrow(new VisitNotFoundException("Nie znaleziono terminu wizyty o podanym id"));
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/visits/{visitId}/patients/{patientId}", visitId, patientId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono terminu wizyty o podanym id"));
+        verify(service, times(1)).assign(1L, 1L);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void assign_PatientNotFoundExceptionThrown_404Returned() throws Exception {
+        // given
+        Long visitId = 1L;
+        Long patientId = 1L;
+        when(service.assign(visitId, patientId)).thenThrow(new PatientNotFoundException("Nie znaleziono pacjenta o podanym id"));
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/visits/{visitId}/patients/{patientId}", visitId, patientId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Nie znaleziono pacjenta o podanym id"));
+        verify(service, times(1)).assign(1L, 1L);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void assign_VisitAlreadyTakenExceptionThrown_409Returned() throws Exception {
+        // given
+        Long visitId = 1L;
+        Long patientId = 1L;
+        when(service.assign(visitId, patientId)).thenThrow(new VisitAlreadyTakenException("Ten termin wizyty jest już zajęty"));
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/visits/{visitId}/patients/{patientId}", visitId, patientId))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Ten termin wizyty jest już zajęty"));
+        verify(service, times(1)).assign(1L, 1L);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
+    void assign_VisitExpiredExceptionThrown_400Returned() throws Exception {
+        // given
+        Long visitId = 1L;
+        Long patientId = 1L;
+        when(service.assign(visitId, patientId)).thenThrow(new VisitExpiredException("Ten termin wizyty poprzedza aktualną datę i nie jest już dostępny"));
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.patch("/visits/{visitId}/patients/{patientId}", visitId, patientId))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Ten termin wizyty poprzedza aktualną datę i nie jest już dostępny"));
         verify(service, times(1)).assign(1L, 1L);
         verifyNoMoreInteractions(service);
     }

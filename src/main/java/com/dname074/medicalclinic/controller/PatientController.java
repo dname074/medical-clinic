@@ -12,7 +12,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/patients")
@@ -35,7 +39,9 @@ public class PatientController {
 
     @Operation(summary = "Get all patients in page based on request params")
     @GetMapping
-    public PageDto<PatientDto> findAll(Pageable pageRequest) {
+    public PageDto<PatientDto> findAll(@ParameterObject Pageable pageRequest) {
+        log.info("Process of finding all patients with parameters page={} and size={} started", pageRequest.getPageNumber(), pageRequest.getPageSize());
+        log.info("Process of finding all patients with parameters page={} and size={} ended", pageRequest.getPageNumber(), pageRequest.getPageSize());
         return patientService.findAll(pageRequest);
     }
 
@@ -51,6 +57,7 @@ public class PatientController {
     })
     @GetMapping("/{patientId}")
     public PatientDto findPatientById(@PathVariable Long patientId) {
+        log.info("Process of finding patient by id={}", patientId);
         return patientService.getPatientDtoById(patientId);
     }
 
@@ -68,7 +75,7 @@ public class PatientController {
     })
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public PatientDto addPatient(@RequestBody CreatePatientCommand patient) {
+    public PatientDto addPatient(@RequestBody @Valid CreatePatientCommand patient) {
         return patientService.addPatient(patient);
     }
 
@@ -86,7 +93,7 @@ public class PatientController {
             })
     })
     @PutMapping("/{patientId}")
-    public PatientDto updatePatientById(@PathVariable Long patientId, @RequestBody CreatePatientCommand updatedPatient) {
+    public PatientDto updatePatientById(@PathVariable Long patientId, @RequestBody @Valid CreatePatientCommand updatedPatient) {
         return patientService.updatePatientById(patientId, updatedPatient);
     }
 
@@ -122,7 +129,9 @@ public class PatientController {
             })
     })
     @PatchMapping("/{patientId}")
-    public PatientDto modifyPasswordById(@PathVariable Long patientId, @RequestBody ChangePasswordCommand newPassword) {
+    public PatientDto modifyPasswordById(@PathVariable Long patientId, @RequestBody @Valid ChangePasswordCommand newPassword) {
         return patientService.modifyPatientPasswordById(patientId, newPassword);
     }
+
+    // todo: logi
 }

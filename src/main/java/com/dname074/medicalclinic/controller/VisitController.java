@@ -11,7 +11,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/visits")
@@ -33,7 +37,8 @@ public class VisitController {
 
     @Operation(summary = "Get patient's visits by id")
     @GetMapping("/patients")
-    public PageDto<VisitDto> getVisitsByPatientId(@RequestParam Long id, Pageable pageRequest) {
+    public PageDto<VisitDto> getVisitsByPatientId(@RequestParam Long id, @ParameterObject Pageable pageRequest) {
+        log.info("Received GET /patients request with parameters: id={}, page={}, size={}", id, pageRequest.getPageNumber(), pageRequest.getPageSize());
         return service.getVisitsByPatientId(id, pageRequest);
     }
 
@@ -57,7 +62,8 @@ public class VisitController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public VisitDto addVisit(@RequestBody CreateVisitCommand createVisitCommand) {
+    public VisitDto addVisit(@RequestBody @Valid CreateVisitCommand createVisitCommand) {
+        log.info("Received POST /visits request {}", createVisitCommand.toString());
         return service.addAvailableVisit(createVisitCommand);
     }
 
@@ -86,6 +92,9 @@ public class VisitController {
     })
     @PatchMapping("/{visitId}/patients/{patientId}")
     public VisitDto assign(@PathVariable Long visitId, @PathVariable Long patientId) {
+        log.info("Received PATCH /visits/{}/patients/{}", visitId, patientId);
         return service.assign(visitId, patientId);
     }
+
+    // todo: uzupelnic logi we wszystkich miejscach
 }

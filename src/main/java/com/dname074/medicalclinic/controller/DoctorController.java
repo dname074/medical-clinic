@@ -11,7 +11,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,7 +35,7 @@ public class DoctorController {
 
     @Operation(summary = "Get all doctors in page based on request params")
     @GetMapping
-    public PageDto<DoctorDto> findAllDoctors(Pageable pageRequest) {
+    public PageDto<DoctorDto> findAllDoctors(@ParameterObject Pageable pageRequest) {
         return service.findAllDoctors(pageRequest);
     }
 
@@ -70,7 +72,7 @@ public class DoctorController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public DoctorDto addDoctor(@RequestBody CreateDoctorCommand createDoctorCommand) {
+    public DoctorDto addDoctor(@RequestBody @Valid CreateDoctorCommand createDoctorCommand) {
         return service.addDoctor(createDoctorCommand);
     }
 
@@ -88,7 +90,7 @@ public class DoctorController {
             })
     })
     @PutMapping("/{doctorId}")
-    public DoctorDto updateDoctorById(@PathVariable Long doctorId, @RequestBody CreateDoctorCommand createDoctorCommand) {
+    public DoctorDto updateDoctorById(@PathVariable Long doctorId, @RequestBody @Valid CreateDoctorCommand createDoctorCommand) {
         return service.updateDoctorById(doctorId, createDoctorCommand);
     }
 
@@ -109,4 +111,5 @@ public class DoctorController {
     public DoctorDto deleteDoctorById(@PathVariable Long doctorId) {
         return service.deleteDoctorById(doctorId);
     }
+    // todo: logi
 }

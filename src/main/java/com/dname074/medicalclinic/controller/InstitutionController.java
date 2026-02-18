@@ -12,7 +12,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,9 +35,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class InstitutionController {
     private final InstitutionService service;
 
+    // usunac *required z pageable
     @Operation(summary = "Get all institutions in page based on request params")
     @GetMapping
-    public PageDto<InstitutionDto> findAllInstitutions(Pageable pageRequest) {
+    public PageDto<InstitutionDto> findAllInstitutions(@ParameterObject Pageable pageRequest) {
         return service.findAllInstitutions(pageRequest);
     }
 
@@ -72,7 +75,7 @@ public class InstitutionController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public InstitutionDto addInstitution(@RequestBody CreateInstitutionCommand createInstitutionCommand) {
+    public InstitutionDto addInstitution(@RequestBody @Valid CreateInstitutionCommand createInstitutionCommand) {
         return service.addInstitution(createInstitutionCommand);
     }
 
@@ -90,7 +93,7 @@ public class InstitutionController {
             })
     })
     @PutMapping("/{institutionId}")
-    public InstitutionDto updateInstitutionById(@RequestBody CreateInstitutionCommand createInstitutionCommand, @PathVariable Long institutionId) {
+    public InstitutionDto updateInstitutionById(@RequestBody @Valid CreateInstitutionCommand createInstitutionCommand, @PathVariable Long institutionId) {
         return service.updateInstitution(createInstitutionCommand, institutionId);
     }
 
@@ -152,4 +155,5 @@ public class InstitutionController {
     public DoctorDto removeDoctorFromInstitution(@PathVariable Long institutionId, @PathVariable Long doctorId) {
         return service.removeDoctorFromInstitution(institutionId, doctorId);
     }
+    // todo: logi
 }

@@ -222,4 +222,6 @@ public class InstitutionControllerTest {
         return new InstitutionDto(1L, "Placówka", "Katowice", "453-2", "Szybka",
                 21, List.of());
     }
+
+    // todo: testy walidacji
 }

@@ -150,4 +150,6 @@ public class DoctorControllerTest {
         return new DoctorDto(1L, "email", Specialization.DERMATOLOGIST,
                 new UserDto(1L, "Jan", "Kowalski"), List.of());
     }
+
+    // todo: testy walidacji
 }

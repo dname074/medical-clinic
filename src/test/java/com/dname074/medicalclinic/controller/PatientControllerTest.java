@@ -203,4 +203,6 @@ public class PatientControllerTest {
                 new UserDto(1L, "Jan", "Kowalski"),
                 List.of());
     }
+
+    // todo: testy walidacji
 }
