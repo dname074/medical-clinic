@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -38,6 +39,13 @@ public class MedicalClinicExceptionHandler {
         List<String> messages = new ArrayList<>();
         exception.getBindingResult().getAllErrors().forEach(error -> messages.add(((FieldError) error).getField() + " - " + error.getDefaultMessage()));
         return ResponseEntity.status(httpStatus).body(new ValidationExceptionDto(httpStatus, messages));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<MedicalClinicExceptionDto> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException exception) {
+        exceptionLog(exception.getMessage());
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        return ResponseEntity.status(httpStatus).body(new MedicalClinicExceptionDto("Podano dane w nieprawidłowym formacie", httpStatus));
     }
 
     private void exceptionLog(String message) {
