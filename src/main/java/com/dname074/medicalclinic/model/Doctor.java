@@ -77,16 +77,19 @@ public class Doctor {
 
     @Override
     public String toString() {
-        return "Doctor{" +
+        String doctorString = "Doctor{" +
                 "id=" + id +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", user_id=" + user.getId() +
-                ", specialization=" + specialization +
-                ", institutions_ids=" + institutions.stream()
-                .map(Institution::getId)
-                .toList()+
-                '}';
+                ", specialization=" + specialization;
+        if (institutions != null) {
+            doctorString += ", institutions_ids=" + institutions.stream()
+                    .map(Institution::getId)
+                    .toList()+
+                    '}';
+        }
+        return doctorString;
     }
 
     @Override

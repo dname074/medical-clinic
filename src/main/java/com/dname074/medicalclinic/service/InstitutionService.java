@@ -1,5 +1,6 @@
 package com.dname074.medicalclinic.service;
 
+import com.dname074.medicalclinic.dto.PageDto;
 import com.dname074.medicalclinic.dto.command.CreateInstitutionCommand;
 import com.dname074.medicalclinic.dto.DoctorDto;
 import com.dname074.medicalclinic.dto.InstitutionDto;
@@ -8,16 +9,18 @@ import com.dname074.medicalclinic.exception.institution.InstitutionExistsExcepti
 import com.dname074.medicalclinic.exception.institution.InstitutionNotFoundException;
 import com.dname074.medicalclinic.mapper.DoctorMapper;
 import com.dname074.medicalclinic.mapper.InstitutionMapper;
+import com.dname074.medicalclinic.mapper.PageMapper;
 import com.dname074.medicalclinic.model.Doctor;
 import com.dname074.medicalclinic.model.Institution;
 import com.dname074.medicalclinic.repository.DoctorRepository;
 import com.dname074.medicalclinic.repository.InstitutionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InstitutionService {
@@ -25,60 +28,76 @@ public class InstitutionService {
     private final DoctorRepository doctorRepository;
     private final InstitutionMapper institutionMapper;
     private final DoctorMapper doctorMapper;
+    private final PageMapper pageMapper;
 
-    public Page<InstitutionDto> findAllInstitutions(Pageable pageRequest) {
-        return institutionRepository.findAllWithDoctors(pageRequest)
-                .map(institutionMapper::toDto);
+    public PageDto<InstitutionDto> findAllInstitutions(Pageable pageRequest) {
+        log.info("Process of finding institutions based on parameters started");
+        PageDto<InstitutionDto> page = pageMapper.toInstitutionDto(institutionRepository.findAllWithDoctors(pageRequest)
+                .map(institutionMapper::toDto));
+        log.info("Process finding institutions based on parameters ended");
+        return page;
     }
 
     public InstitutionDto getInstitutionDtoById(Long institutionId) {
+        log.info("Process of finding institution by id started");
         Institution institution = getInstitutionById(institutionId);
+        log.info("Process of finding institution by id ended");
         return institutionMapper.toDto(institution);
     }
 
     @Transactional
     public InstitutionDto addInstitution(CreateInstitutionCommand createInstitutionCommand) {
+        log.info("Process of adding institution started");
         if (institutionRepository.findByName(createInstitutionCommand.name()).isPresent()) {
             throw new InstitutionExistsException("Podana placówka już istnieje w systemie");
         }
         Institution institution = institutionMapper.toEntity(createInstitutionCommand);
         institutionRepository.save(institution);
+        log.info("Process of adding institution ended");
         return institutionMapper.toDto(institution);
     }
 
     @Transactional
     public InstitutionDto updateInstitution(CreateInstitutionCommand createInstitutionCommand, Long institutionId) {
+        log.info("Process of updating institution started");
         Institution institution = getInstitutionById(institutionId);
         institution.update(createInstitutionCommand);
         institutionRepository.save(institution);
+        log.info("Process of updating institution ended");
         return institutionMapper.toDto(institution);
     }
 
     @Transactional
     public DoctorDto assignDoctorToInstitution(Long doctorId, Long institutionId) {
+        log.info("Process of assigning doctor to institution started");
         Institution institution = getInstitutionById(institutionId);
         Doctor doctor = getDoctorById(doctorId);
         institution.addDoctor(doctor);
         doctor.addInstitution(institution);
         institutionRepository.save(institution);
         doctorRepository.save(doctor);
+        log.info("Process of assigning doctor to institution ended");
         return doctorMapper.toDto(doctor);
     }
 
     @Transactional
     public InstitutionDto deleteInstitutionById(Long institutionId) {
+        log.info("Process of deleting institution by id started");
         Institution institution = getInstitutionById(institutionId);
         institutionRepository.delete(institution);
+        log.info("Process of deleting institution by id ended");
         return institutionMapper.toDto(institution);
     }
 
     @Transactional
     public DoctorDto removeDoctorFromInstitution(Long institutionId, Long doctorId) {
+        log.info("Process of removing doctor from institution started");
         Institution institution = getInstitutionById(institutionId);
         Doctor doctor = getDoctorById(doctorId);
         institution.removeDoctor(doctor);
         doctorRepository.save(doctor);
         institutionRepository.save(institution);
+        log.info("Process of removing doctor from institution ended");
         return doctorMapper.toDto(doctor);
     }
 
