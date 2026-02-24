@@ -69,9 +69,6 @@ public class VisitService {
         if (visit.getPatient() != null) {
             throw new VisitAlreadyTakenException("Ten termin wizyty jest już zajęty");
         }
-        // clock zastosowalem, poniewaz nie mialem jak testowac tej metody bez niego
-        // dane testowe po jakims czasie bylyby nieaktualne i testy zaczelyby sie wywalac
-        // w pracy zrobiloby to zamęt i znowu duzo czasu by poszlo na szukanie bledu
         if (visit.getStartDate().isBefore(LocalDateTime.now(clock))) {
             throw new VisitExpiredException("Ten termin wizyty poprzedza aktualną datę i nie jest już dostępny");
         }

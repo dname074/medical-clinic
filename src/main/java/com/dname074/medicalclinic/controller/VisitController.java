@@ -45,20 +45,20 @@ public class VisitController {
     @Operation(summary = "Add available visit")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Visit added",
-            content = {
-                    @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = VisitDto.class))
-            }),
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = VisitDto.class))
+                    }),
             @ApiResponse(responseCode = "400", description = "Incorrect visit date",
-            content = {
-                    @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = MedicalClinicExceptionDto.class))
-            }),
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = MedicalClinicExceptionDto.class))
+                    }),
             @ApiResponse(responseCode = "404", description = "Doctor not found",
-            content = {
-                    @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = MedicalClinicExceptionDto.class))
-            })
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = MedicalClinicExceptionDto.class))
+                    })
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -70,31 +70,29 @@ public class VisitController {
     @Operation(summary = "Assign patient to visit")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Patient assigned to visit",
-            content = {
-                    @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = VisitDto.class))
-            }),
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = VisitDto.class))
+                    }),
             @ApiResponse(responseCode = "400", description = "Visit expired",
-            content = {
-                    @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = MedicalClinicExceptionDto.class))
-            }),
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = MedicalClinicExceptionDto.class))
+                    }),
             @ApiResponse(responseCode = "404", description = "Visit not found or Patient not found",
-            content = {
-                    @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = MedicalClinicExceptionDto.class))
-            }),
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = MedicalClinicExceptionDto.class))
+                    }),
             @ApiResponse(responseCode = "409", description = "Visit date already booked",
-            content = {
-                    @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = MedicalClinicExceptionDto.class))
-            })
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = MedicalClinicExceptionDto.class))
+                    })
     })
     @PatchMapping("/{visitId}/patients/{patientId}")
     public VisitDto assign(@PathVariable Long visitId, @PathVariable Long patientId) {
         log.info("Received PATCH /visits/{}/patients/{}", visitId, patientId);
         return service.assign(visitId, patientId);
     }
-
-    // todo: uzupelnic logi we wszystkich miejscach
 }
