@@ -32,15 +32,11 @@ public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "email")
     private String email;
-    @Column(name = "password")
     private String password;
     @Column(name = "idCardNumber")
     private String idCardNo;
-    @Column(name = "phoneNumber")
     private String phoneNumber;
-    @Column(name = "birthday")
     private LocalDate birthday;
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "user_id", referencedColumnName = "id")
