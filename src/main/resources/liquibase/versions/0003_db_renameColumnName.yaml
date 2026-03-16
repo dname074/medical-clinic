@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: damian
+      comment: "Poprawa nazwy kolumny"
+      changes:
+        - renameColumn:
+            tableName: patients
+            oldColumnName: idCardNumber
+            newColumnName: id_card_number

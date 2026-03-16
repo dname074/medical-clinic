@@ -1,6 +1,7 @@
 package com.dname074.medicalclinic.model;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -23,15 +24,17 @@ import java.util.Objects;
 @Entity
 @Table(name = "visits", uniqueConstraints = {
         @UniqueConstraint(columnNames = {
-                "startDate",
-                "endDate"
+                "start_date",
+                "end_date"
         })
 })
 public class Visit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "start_date")
     private LocalDateTime startDate;
+    @Column(name = "end_date")
     private LocalDateTime endDate;
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "patient_id", referencedColumnName = "id")

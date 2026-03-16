@@ -1,0 +1,66 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: damian
+      comment: "Dodanie tabeli z użytkownikami oraz aktualizacja tabeli z pacjentami"
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_users_id
+              - column:
+                  name: first_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+        - dropColumn:
+            tableName: patients
+            columns:
+              - column:
+                  name: first_name
+              - column:
+                  name: last_name
+        - addColumn:
+            tableName: patients
+            columns:
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    unique: true
+                    foreignKeyName: fk_patients_user_id
+                    referencedTableName: users
+                    referencedColumnNames: id
+      rollback:
+        - dropColumn:
+              tableName: patients
+              columns:
+                - column:
+                    name: user_id
+        - dropTable:
+            tableName: users
+        - addColumn:
+            tableName: patients
+            columns:
+              - column:
+                  name: first_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true

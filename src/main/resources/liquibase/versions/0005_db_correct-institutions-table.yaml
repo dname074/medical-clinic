@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 7
+      author: damian
+      comment: "Insitutions table - column type correction"
+      changes:
+        - modifyDataType:
+            tableName: institutions
+            columnName: zip_code
+            newDataType: varchar(6)

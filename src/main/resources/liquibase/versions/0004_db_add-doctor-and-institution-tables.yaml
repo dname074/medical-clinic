@@ -1,0 +1,109 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: damian
+      comment: "Table with doctors"
+      changes:
+        - createTable:
+            tableName: doctors
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_doctors_id
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_doctors_email
+              - column:
+                  name: password
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_doctors_user_id
+                    foreignKeyName: fk_doctors_user_id
+                    referencedTableName: users
+                    referencedColumnNames: id
+              - column:
+                  name: specialization
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 5
+      author: damian
+      comment: "Table with institutions"
+      changes:
+        - createTable:
+            tableName: institutions
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_institutions_id
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_institutions_name
+              - column:
+                  name: town
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: zip_code
+                  type: varchar(5)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: street
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: place_number
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 6
+      author: damian
+      comment: "Relation between doctors and institutions tables"
+      changes:
+        - createTable:
+            tableName: institution_doctor
+            columns:
+              - column:
+                  name: institution_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_institution_doctor_institution_id
+                    referencedTableName: institutions
+                    referencedColumnNames: id
+              - column:
+                  name: doctor_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_institution_doctor_doctor_id
+                    referencedTableName: doctors
+                    referencedColumnNames: id

@@ -34,8 +34,9 @@ public class Patient {
     private Long id;
     private String email;
     private String password;
-    @Column(name = "idCardNumber")
+    @Column(name = "id_card_number")
     private String idCardNo;
+    @Column(name = "phone_number")
     private String phoneNumber;
     private LocalDate birthday;
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})

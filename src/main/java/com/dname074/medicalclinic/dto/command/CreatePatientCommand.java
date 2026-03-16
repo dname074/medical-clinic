@@ -15,6 +15,7 @@ public record CreatePatientCommand(
         @Size(min = 8, max = 64)
         @NotBlank
         String password,
+        @Size(max = 5)
         @NotBlank
         String idCardNo,
         @NotBlank
