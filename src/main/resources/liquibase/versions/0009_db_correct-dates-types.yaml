@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 11
+      author: damian
+      comment: "Correction of types for fields with dates"
+      changes:
+        - modifyDataType:
+            tableName: patients
+            columnName: birthday
+            newDataType: date
+        - modifyDataType:
+            tableName: visits
+            columnName: start_date
+            newDataType: timestamp
+        - modifyDataType:
+            tableName: visits
+            columnName: end_date
+            newDataType: timestamp

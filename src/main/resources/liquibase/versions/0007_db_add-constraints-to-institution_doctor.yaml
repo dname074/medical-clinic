@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 9
+      author: damian
+      changes:
+        - addPrimaryKey:
+            tableName: institution_doctor
+            columnNames: institution_id, doctor_id

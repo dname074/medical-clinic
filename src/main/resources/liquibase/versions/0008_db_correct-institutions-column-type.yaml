@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 10
+      author: damian
+      comment: "Correction of place_number column type"
+      changes:
+        - modifyDataType:
+            tableName: institutions
+            columnName: place_number
+            newDataType: int
