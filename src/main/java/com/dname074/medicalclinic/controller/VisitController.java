@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,8 +35,8 @@ public class VisitController {
     private final VisitService service;
 
     @Operation(summary = "Get patient's visits by id")
-    @GetMapping("/patients")
-    public PageDto<VisitDto> getVisitsByPatientId(@RequestParam Long id, @ParameterObject Pageable pageRequest) {
+    @GetMapping("/patients/{id}")
+    public PageDto<VisitDto> getVisitsByPatientId(@PathVariable Long id, @ParameterObject Pageable pageRequest) {
         log.info("Received GET /patients request with parameters: id={}, page={}, size={}", id, pageRequest.getPageNumber(), pageRequest.getPageSize());
         return service.getVisitsByPatientId(id, pageRequest);
     }

@@ -68,8 +68,7 @@ public class VisitControllerTest {
         PageDto<VisitDto> visitsPageDto = pageMapper.toVisitDto(visitsPage);
         when(service.getVisitsByPatientId(patientId, pageable)).thenReturn(visitsPageDto);
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.get("/visits/patients")
-                        .param("id", String.valueOf(patientId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/visits/patients/{patientId}", patientId)
                         .param("page", String.valueOf(page))
                         .param("size", String.valueOf(size))
         )
