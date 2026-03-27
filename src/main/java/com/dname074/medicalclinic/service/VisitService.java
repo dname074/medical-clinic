@@ -46,6 +46,14 @@ public class VisitService {
         return page;
     }
 
+    public PageDto<VisitDto> getVisitsByDoctorId(Long doctorId, Pageable pageRequest) {
+        log.info("Process of finding doctor's visits started");
+        PageDto<VisitDto> page = pageMapper.toVisitDto(visitRepository.findByDoctorId(doctorId, pageRequest)
+                .map(visitMapper::toDto));
+        log.info("Process of finding doctor's visits ended");
+        return page;
+    }
+
     @Transactional
     public VisitDto addAvailableVisit(CreateVisitCommand createVisitCommand) {
         log.info("Process of creating new visit started");

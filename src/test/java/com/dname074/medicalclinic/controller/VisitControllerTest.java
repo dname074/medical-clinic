@@ -83,6 +83,34 @@ public class VisitControllerTest {
     }
 
     @Test
+    void getVisitsByDoctorId_DoctorFound_VisitsPageReturned() throws Exception {
+        // given
+        Long doctorId = 1L;
+        int page = 0;
+        int size = 1;
+
+        Pageable pageable = PageRequest.of(page, size);
+        VisitDto visitDto = createVisit();
+        List<VisitDto> visits = List.of(visitDto);
+        Page<VisitDto> visitsPage = new PageImpl<>(visits, pageable, 1);
+        PageDto<VisitDto> visitsPageDto = pageMapper.toVisitDto(visitsPage);
+        when(service.getVisitsByDoctorId(doctorId, pageable)).thenReturn(visitsPageDto);
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.get("/visits/doctors/{doctorId}", doctorId)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+        )
+                .andDo(print())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.pageNumber").value(0))
+                .andExpect(jsonPath("$.pageSize").value(1));
+        verify(service, times(1)).getVisitsByDoctorId(1L, pageable);
+        verifyNoMoreInteractions(service);
+    }
+
+    @Test
     void addVisit_VisitNotFound_VisitDtoReturned() throws Exception {
         // given
         CreateVisitCommand createVisitCommand = makeCreateVisitCommand();

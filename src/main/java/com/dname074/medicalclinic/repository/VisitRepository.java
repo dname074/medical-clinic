@@ -12,4 +12,5 @@ import java.time.LocalDateTime;
 public interface VisitRepository extends JpaRepository<Visit, Long> {
     boolean existsByStartDateLessThanAndEndDateGreaterThan(LocalDateTime endDate, LocalDateTime startDate);
     Page<Visit> findByPatientId(Long patientId, Pageable pageable);
+    Page<Visit> findByDoctorId(Long doctorId, Pageable pageable);
 }

@@ -34,11 +34,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class VisitController {
     private final VisitService service;
 
-    @Operation(summary = "Get patient's visits by id")
+    @Operation(summary = "Get patient's visits")
     @GetMapping("/patients/{id}")
     public PageDto<VisitDto> getVisitsByPatientId(@PathVariable Long id, @ParameterObject Pageable pageRequest) {
         log.info("Received GET /patients request with parameters: id={}, page={}, size={}", id, pageRequest.getPageNumber(), pageRequest.getPageSize());
         return service.getVisitsByPatientId(id, pageRequest);
+    }
+
+    @Operation(summary = "Get doctor's visits")
+    @GetMapping("/doctors/{doctorId}")
+    public PageDto<VisitDto> getVisitsByDoctorId(@PathVariable Long doctorId, @ParameterObject Pageable pageRequest) {
+        log.info("Received GET /visits/doctors/{} request", doctorId);
+        return service.getVisitsByDoctorId(doctorId, pageRequest);
     }
 
     @Operation(summary = "Add available visit")
