@@ -9,6 +9,7 @@ import com.dname074.medicalclinic.exception.user.UserAlreadyExistsException;
 import com.dname074.medicalclinic.mapper.DoctorMapper;
 import com.dname074.medicalclinic.mapper.PageMapper;
 import com.dname074.medicalclinic.model.Doctor;
+import com.dname074.medicalclinic.model.Specialization;
 import com.dname074.medicalclinic.model.User;
 import com.dname074.medicalclinic.repository.DoctorRepository;
 import com.dname074.medicalclinic.repository.UserRepository;
@@ -27,10 +28,16 @@ public class DoctorService {
     private final DoctorMapper doctorMapper;
     private final PageMapper pageMapper;
 
-    public PageDto<DoctorDto> findAllDoctors(Pageable pageRequest) {
+    public PageDto<DoctorDto> findAllDoctors(Pageable pageRequest, Specialization specialization) {
         log.info("Process of finding all doctors started");
-        PageDto<DoctorDto> page = pageMapper.toDoctorDto(doctorRepository.findAllWithUsers(pageRequest)
-                .map(doctorMapper::toDto));
+        PageDto<DoctorDto> page;
+        if (specialization == null) {
+            page = pageMapper.toDoctorDto(doctorRepository.findAllWithUsers(pageRequest)
+                    .map(doctorMapper::toDto));
+        } else {
+            page = pageMapper.toDoctorDto(doctorRepository.findBySpecialization(specialization, pageRequest)
+                    .map(doctorMapper::toDto));
+        }
         log.info("Process of finding all doctors ended");
         return page;
     }

@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 12
+      author: damian
+      comment: "Add visit_status column to visits table"
+      changes:
+        - addColumn:
+            tableName: visits
+            columns:
+              - column:
+                  name: visit_status
+                  type: VARCHAR(20)
+                  defaultValue: CURRENT
+        - update:
+            tableName: visits
+            columns:
+              - column:
+                  name: visit_status
+                  value: CURRENT
+            where: visit_status IS NULL
+        - addNotNullConstraint:
+            tableName: visits
+            columnName: visit_status
+            columnDataType: VARCHAR(20)
+        - sql:
+            sql: ALTER TABLE visits ADD CONSTRAINT chk_visit_status CHECK (visit_status IN ('CURRENT', 'CANCELED'));

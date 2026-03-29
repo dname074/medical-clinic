@@ -2,8 +2,11 @@ package com.dname074.medicalclinic.controller;
 
 import com.dname074.medicalclinic.dto.MedicalClinicExceptionDto;
 import com.dname074.medicalclinic.dto.PageDto;
+import com.dname074.medicalclinic.dto.ValidationExceptionDto;
 import com.dname074.medicalclinic.dto.VisitDto;
 import com.dname074.medicalclinic.dto.command.CreateVisitCommand;
+import com.dname074.medicalclinic.model.Specialization;
+import com.dname074.medicalclinic.model.Status;
 import com.dname074.medicalclinic.service.VisitService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Future;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
@@ -23,8 +27,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
 
 @Slf4j
 @RestController
@@ -42,10 +49,22 @@ public class VisitController {
     }
 
     @Operation(summary = "Get doctor's visits")
-    @GetMapping("/doctors/{doctorId}")
-    public PageDto<VisitDto> getVisitsByDoctorId(@PathVariable Long doctorId, @ParameterObject Pageable pageRequest) {
-        log.info("Received GET /visits/doctors/{} request", doctorId);
-        return service.getVisitsByDoctorId(doctorId, pageRequest);
+    @GetMapping("/doctors/{id}")
+    public PageDto<VisitDto> getVisitsByDoctorId(@PathVariable Long id, @RequestParam Status status, @ParameterObject Pageable pageRequest) {
+        log.info("Received GET /visits/doctors request with parameters id={}, status={}, page={}, size={}", id, status, pageRequest.getPageNumber(), pageRequest.getPageSize());
+        return service.getVisitsByDoctorId(id, status, pageRequest);
+    }
+
+    @Operation(summary = "Get free visits by date and doctor's specialization")
+    @GetMapping("/doctors")
+    public PageDto<VisitDto> getVisitsByDateAndDoctorSpecialization(@RequestParam(required = false) Specialization specialization,
+                                                                    @RequestParam(name = "from") @Future LocalDate fromDate,
+                                                                    @RequestParam(name = "to") @Future LocalDate toDate,
+                                                                    @RequestParam Status status,
+                                                                    @ParameterObject Pageable pageRequest) {
+        log.info("Received GET /visits/doctors request with params specialization = {}, fromDate = {}, toDate = {}, status = {}, page = {} and size = {}",
+                specialization, fromDate, toDate, status, pageRequest.getPageNumber(), pageRequest.getPageSize());
+        return service.getVisitsByDateAndDoctorSpecialization(fromDate, toDate, specialization, status, pageRequest);
     }
 
     @Operation(summary = "Add available visit")
@@ -54,6 +73,11 @@ public class VisitController {
                     content = {
                             @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = VisitDto.class))
+                    }),
+            @ApiResponse(responseCode = "400", description = "Wrong data format",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ValidationExceptionDto.class))
                     }),
             @ApiResponse(responseCode = "400", description = "Incorrect visit date",
                     content = {
@@ -80,6 +104,11 @@ public class VisitController {
                             @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = VisitDto.class))
                     }),
+            @ApiResponse(responseCode = "400", description = "Wrong data format",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ValidationExceptionDto.class))
+                    }),
             @ApiResponse(responseCode = "400", description = "Visit expired",
                     content = {
                             @Content(mediaType = "application/json",
@@ -100,5 +129,36 @@ public class VisitController {
     public VisitDto assign(@PathVariable Long visitId, @PathVariable Long patientId) {
         log.info("Received PATCH /visits/{}/patients/{}", visitId, patientId);
         return service.assign(visitId, patientId);
+    }
+
+    @Operation(summary = "Cancel visit")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Visit canceled",
+                            content = {
+                                    @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = VisitDto.class))
+                            }),
+                    @ApiResponse(responseCode = "400", description = "Wrong data format",
+                            content = {
+                                    @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = ValidationExceptionDto.class))
+                            }),
+                    @ApiResponse(responseCode = "404", description = "Visit not found",
+                            content = {
+                                    @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = MedicalClinicExceptionDto.class))
+                            }),
+                    @ApiResponse(responseCode = "409", description = "Visit already canceled",
+                            content = {
+                                    @Content(mediaType = "application/json",
+                                            schema = @Schema(implementation = MedicalClinicExceptionDto.class))
+                            })
+            }
+    )
+    @PatchMapping("/{visitId}")
+    public VisitDto cancelVisit(@PathVariable Long visitId) {
+        log.info("Received PATCH /visits/{} request", visitId);
+        return service.cancelVisit(visitId);
     }
 }

@@ -1,6 +1,7 @@
 package com.dname074.medicalclinic.repository;
 
 import com.dname074.medicalclinic.model.Doctor;
+import com.dname074.medicalclinic.model.Specialization;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
     @Query("select distinct d from Doctor d left join fetch d.institutions join fetch d.user")
     Page<Doctor> findAllWithUsers(Pageable pageable);
+
+    Page<Doctor> findBySpecialization(Specialization specialization, Pageable pageable);
 }
