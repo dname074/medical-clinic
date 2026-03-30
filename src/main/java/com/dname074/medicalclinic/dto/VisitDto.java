@@ -6,6 +6,6 @@ import com.dname074.medicalclinic.model.VisitStatus;
 
 import java.time.LocalDateTime;
 
-public record VisitDto(Long id, LocalDateTime startDate, LocalDateTime endDate, VisitStatus status,
+public record VisitDto(Long id, LocalDateTime startDate, LocalDateTime endDate, VisitStatus visitStatus,
                        SimpleDoctorDto doctor, SimplePatientDto patient) {
 }

@@ -57,14 +57,14 @@ public class VisitController {
 
     @Operation(summary = "Get free visits by date and doctor's specialization")
     @GetMapping("/doctors")
-    public PageDto<VisitDto> getVisitsByDateAndDoctorSpecialization(@RequestParam(required = false) Specialization specialization,
-                                                                    @RequestParam(name = "from") @Future LocalDate fromDate,
-                                                                    @RequestParam(name = "to") @Future LocalDate toDate,
-                                                                    @RequestParam Status status,
-                                                                    @ParameterObject Pageable pageRequest) {
+    public PageDto<VisitDto> getFilteredVisits(@RequestParam(required = false) Specialization specialization,
+                                               @RequestParam(name = "from") @Future LocalDate fromDate,
+                                               @RequestParam(name = "to") @Future LocalDate toDate,
+                                               @RequestParam Status status,
+                                               @ParameterObject Pageable pageRequest) {
         log.info("Received GET /visits/doctors request with params specialization = {}, fromDate = {}, toDate = {}, status = {}, page = {} and size = {}",
                 specialization, fromDate, toDate, status, pageRequest.getPageNumber(), pageRequest.getPageSize());
-        return service.getVisitsByDateAndDoctorSpecialization(fromDate, toDate, specialization, status, pageRequest);
+        return service.getFilteredVisits(fromDate, toDate, specialization, status, pageRequest);
     }
 
     @Operation(summary = "Add available visit")

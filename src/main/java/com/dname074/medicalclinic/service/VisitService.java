@@ -65,7 +65,7 @@ public class VisitService {
         return visitsPage;
     }
 
-    public PageDto<VisitDto> getVisitsByDateAndDoctorSpecialization(LocalDate fromDate, LocalDate toDate, Specialization specialization, Status status, Pageable pageRequest) {
+    public PageDto<VisitDto> getFilteredVisits(LocalDate fromDate, LocalDate toDate, Specialization specialization, Status status, Pageable pageRequest) {
         log.info("Process of finding visits by date and specialization started");
         PageDto<VisitDto> page;
         if (specialization == null) {
@@ -127,10 +127,10 @@ public class VisitService {
 
     private PageDto<VisitDto> getVisitsByDate(LocalDate fromDate, LocalDate toDate, Status status, Pageable pageRequest) {
         if (status == Status.FREE) {
-            return pageMapper.toVisitDto(visitRepository.findByStartDateGreaterThanEqualAndStartDateLessThanAndPatientIsNull(
+            return pageMapper.toVisitDto(visitRepository.findByStartDateGreaterThanEqualAndStartDateLessThanAndVisitStatusAndPatientIsNull(
                             fromDate.atStartOfDay(),
                             toDate.plusDays(1).atStartOfDay(),
-                            pageRequest
+                            VisitStatus.CURRENT, pageRequest
                     )
                     .map(visitMapper::toDto));
         }
@@ -144,10 +144,10 @@ public class VisitService {
 
     private PageDto<VisitDto> getVisitsByDateAndSpecialization(LocalDate fromDate, LocalDate toDate, Specialization specialization, Status status, Pageable pageRequest) {
         if (status == Status.FREE) {
-            return pageMapper.toVisitDto(visitRepository.findByStartDateGreaterThanEqualAndStartDateLessThanAndDoctorSpecializationAndPatientIsNull(
+            return pageMapper.toVisitDto(visitRepository.findByStartDateGreaterThanEqualAndStartDateLessThanAndDoctorSpecializationAndVisitStatusAndPatientIsNull(
                             fromDate.atStartOfDay(),
                             toDate.plusDays(1).atStartOfDay(),
-                            specialization, pageRequest
+                            specialization, VisitStatus.CURRENT, pageRequest
                     )
                     .map(visitMapper::toDto));
         }
