@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 13
+      author: damian
+      comment: "Update data in visits table"
+      changes:
+        - sql:
+            sql: ALTER TABLE visits DROP CONSTRAINT chk_visit_status
+        - sql:
+            sql: ALTER TABLE visits ALTER COLUMN visit_status SET DEFAULT 'AVAILABLE'
+        - update:
+            tableName: visits
+            columns:
+              - column:
+                  name: visit_status
+                  value: 'AVAILABLE'
+            where: visit_status LIKE 'CURRENT'
+        - update:
+            tableName: visits
+            columns:
+              - column:
+                  name: visit_status
+                  value: 'BOOKED'
+            where: patient_id IS NOT NULL
+        - sql:
+            sql: ALTER TABLE visits ADD CONSTRAINT chk_visit_status CHECK (visit_status IN ('AVAILABLE', 'CANCELED', 'BOOKED'))

@@ -26,11 +26,6 @@ public class VisitSpecifications {
                 criteriaBuilder.equal(root.get("visitStatus"), status);
     }
 
-    public static Specification<Visit> isFree() {
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.isNull(root.get("patient"));
-    }
-
     public static Specification<Visit> hasDoctorId(Long id) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("doctor").get("id"), id);

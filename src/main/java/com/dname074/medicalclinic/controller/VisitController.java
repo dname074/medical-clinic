@@ -6,7 +6,7 @@ import com.dname074.medicalclinic.dto.ValidationExceptionDto;
 import com.dname074.medicalclinic.dto.VisitDto;
 import com.dname074.medicalclinic.dto.command.CreateVisitCommand;
 import com.dname074.medicalclinic.model.Specialization;
-import com.dname074.medicalclinic.model.VisitAvailability;
+import com.dname074.medicalclinic.model.VisitStatus;
 import com.dname074.medicalclinic.service.VisitService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -50,21 +50,21 @@ public class VisitController {
 
     @Operation(summary = "Get doctor's visits")
     @GetMapping("/doctors/{id}")
-    public PageDto<VisitDto> getVisitsByDoctorId(@PathVariable Long id, @RequestParam VisitAvailability availability, @ParameterObject Pageable pageRequest) {
-        log.info("Received GET /visits/doctors request with parameters id={}, availability={}, page={}, size={}", id, availability, pageRequest.getPageNumber(), pageRequest.getPageSize());
-        return service.getVisitsByDoctorId(id, availability, pageRequest);
+    public PageDto<VisitDto> getVisitsByDoctorId(@PathVariable Long id, @RequestParam(required = false) VisitStatus status, @ParameterObject Pageable pageRequest) {
+        log.info("Received GET /visits/doctors request with parameters id={}, status={}, page={}, size={}", id, status, pageRequest.getPageNumber(), pageRequest.getPageSize());
+        return service.getVisitsByDoctorId(id, status, pageRequest);
     }
 
     @Operation(summary = "Get free visits by date and doctor's specialization")
-    @GetMapping("/doctors")
+    @GetMapping
     public PageDto<VisitDto> getFilteredVisits(@RequestParam(required = false) Specialization specialization,
                                                @RequestParam(name = "from") @FutureOrPresent LocalDate fromDate,
                                                @RequestParam(name = "to") @FutureOrPresent LocalDate toDate,
-                                               @RequestParam VisitAvailability availability,
+                                               @RequestParam(required = false) VisitStatus status,
                                                @ParameterObject Pageable pageRequest) {
-        log.info("Received GET /visits/doctors request with params specialization = {}, fromDate = {}, toDate = {}, availability = {}, page = {} and size = {}",
-                specialization, fromDate, toDate, availability, pageRequest.getPageNumber(), pageRequest.getPageSize());
-        return service.getFilteredVisits(fromDate, toDate, specialization, availability, pageRequest);
+        log.info("Received GET /visits/doctors request with params specialization = {}, fromDate = {}, toDate = {}, status = {}, page = {} and size = {}",
+                specialization, fromDate, toDate, status, pageRequest.getPageNumber(), pageRequest.getPageSize());
+        return service.getFilteredVisits(fromDate, toDate, specialization, status, pageRequest);
     }
 
     @Operation(summary = "Add available visit")

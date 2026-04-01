@@ -13,10 +13,12 @@ import com.dname074.medicalclinic.model.Specialization;
 import com.dname074.medicalclinic.model.User;
 import com.dname074.medicalclinic.repository.DoctorRepository;
 import com.dname074.medicalclinic.repository.UserRepository;
+import com.dname074.medicalclinic.specification.DoctorSpecifications;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -30,14 +32,12 @@ public class DoctorService {
 
     public PageDto<DoctorDto> findAllDoctors(Pageable pageRequest, Specialization specialization) {
         log.info("Process of finding all doctors started");
-        PageDto<DoctorDto> page;
-        if (specialization == null) {
-            page = pageMapper.toDoctorDto(doctorRepository.findAllWithUsers(pageRequest)
-                    .map(doctorMapper::toDto));
-        } else {
-            page = pageMapper.toDoctorDto(doctorRepository.findBySpecialization(specialization, pageRequest)
-                    .map(doctorMapper::toDto));
+        Specification<Doctor> filters = null;
+        if (specialization != null) {
+            filters = DoctorSpecifications.hasSpecialization(specialization);
         }
+        PageDto<DoctorDto> page = pageMapper.toDoctorDto(doctorRepository.findAll(filters, pageRequest)
+                .map(doctorMapper::toDto));
         log.info("Process of finding all doctors ended");
         return page;
     }
