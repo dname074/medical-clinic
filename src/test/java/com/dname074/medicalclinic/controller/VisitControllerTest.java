@@ -14,7 +14,7 @@ import com.dname074.medicalclinic.exception.visit.VisitExpiredException;
 import com.dname074.medicalclinic.exception.visit.VisitNotFoundException;
 import com.dname074.medicalclinic.mapper.PageMapper;
 import com.dname074.medicalclinic.model.Specialization;
-import com.dname074.medicalclinic.model.Status;
+import com.dname074.medicalclinic.model.VisitAvailability;
 import com.dname074.medicalclinic.model.VisitStatus;
 import com.dname074.medicalclinic.service.VisitService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -87,7 +87,7 @@ public class VisitControllerTest {
     @Test
     void getVisitsByDoctorId_DoctorFoundAndFreeVisitFound_VisitsPageReturned() throws Exception {
         // given
-        Status status = Status.FREE;
+        VisitAvailability availability = VisitAvailability.FREE;
         Long doctorId = 1L;
         int page = 0;
         int size = 1;
@@ -97,10 +97,10 @@ public class VisitControllerTest {
         List<VisitDto> visits = List.of(visitDto);
         Page<VisitDto> visitsPage = new PageImpl<>(visits, pageable, 1);
         PageDto<VisitDto> visitsPageDto = pageMapper.toVisitDto(visitsPage);
-        when(service.getVisitsByDoctorId(doctorId, status, pageable)).thenReturn(visitsPageDto);
+        when(service.getVisitsByDoctorId(doctorId, availability, pageable)).thenReturn(visitsPageDto);
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.get("/visits/doctors/{doctorId}", doctorId)
-                        .param("status", String.valueOf(status))
+                        .param("availability", String.valueOf(availability))
                         .param("page", String.valueOf(page))
                         .param("size", String.valueOf(size))
         )
@@ -110,7 +110,7 @@ public class VisitControllerTest {
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.pageNumber").value(0))
                 .andExpect(jsonPath("$.pageSize").value(1));
-        verify(service, times(1)).getVisitsByDoctorId(1L, Status.FREE, pageable);
+        verify(service, times(1)).getVisitsByDoctorId(1L, VisitAvailability.FREE, pageable);
         verifyNoMoreInteractions(service);
     }
 
@@ -120,7 +120,7 @@ public class VisitControllerTest {
         Specialization specialization = Specialization.DERMATOLOGIST;
         LocalDate fromDate = LocalDate.of(2027, 1, 1);
         LocalDate toDate = LocalDate.of(2027, 5, 1);
-        Status status = Status.FREE;
+        VisitAvailability availability = VisitAvailability.FREE;
         int page = 0;
         int size = 1;
 
@@ -129,14 +129,14 @@ public class VisitControllerTest {
         List<VisitDto> visits = List.of(visitDto);
         Page<VisitDto> visitsPage = new PageImpl<>(visits, pageable, 1);
         PageDto<VisitDto> visitsPageDto = pageMapper.toVisitDto(visitsPage);
-        when(service.getFilteredVisits(fromDate, toDate, specialization, status, pageable)).thenReturn(visitsPageDto);
+        when(service.getFilteredVisits(fromDate, toDate, specialization, availability, pageable)).thenReturn(visitsPageDto);
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.get("/visits/doctors")
                         .param("page", String.valueOf(page))
                         .param("size", String.valueOf(size))
                         .param("from", String.valueOf(fromDate))
                         .param("to", String.valueOf(toDate))
-                        .param("status", String.valueOf(status))
+                        .param("availability", String.valueOf(availability))
                         .param("specialization", String.valueOf(specialization))
         )
                 .andDo(print())
@@ -145,7 +145,7 @@ public class VisitControllerTest {
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.pageNumber").value(0))
                 .andExpect(jsonPath("$.pageSize").value(1));
-        verify(service, times(1)).getFilteredVisits(fromDate, toDate, specialization, status, pageable);
+        verify(service, times(1)).getFilteredVisits(fromDate, toDate, specialization, availability, pageable);
         verifyNoMoreInteractions(service);
     }
 

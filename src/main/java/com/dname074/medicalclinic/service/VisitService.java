@@ -14,17 +14,20 @@ import com.dname074.medicalclinic.mapper.VisitMapper;
 import com.dname074.medicalclinic.model.Doctor;
 import com.dname074.medicalclinic.model.Patient;
 import com.dname074.medicalclinic.model.Specialization;
-import com.dname074.medicalclinic.model.Status;
+import com.dname074.medicalclinic.model.VisitAvailability;
 import com.dname074.medicalclinic.model.Visit;
 import com.dname074.medicalclinic.model.VisitStatus;
 import com.dname074.medicalclinic.repository.DoctorRepository;
 import com.dname074.medicalclinic.repository.PatientRepository;
 import com.dname074.medicalclinic.repository.VisitRepository;
+import com.dname074.medicalclinic.specification.VisitSpecifications;
 import com.dname074.medicalclinic.validation.VisitValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -45,34 +48,31 @@ public class VisitService {
 
     public PageDto<VisitDto> getVisitsByPatientId(Long id, Pageable pageRequest) {
         log.info("Process of finding patient's visits started");
-        PageDto<VisitDto> page = pageMapper.toVisitDto(visitRepository.findByPatientId(id, pageRequest)
+        Specification<Visit> filters = VisitSpecifications.hasPatientId(id);
+        PageDto<VisitDto> page = pageMapper.toVisitDto(visitRepository.findAll(filters, pageRequest)
                 .map(visitMapper::toDto));
         log.info("Process of finding patient's visits ended");
         return page;
     }
 
-    public PageDto<VisitDto> getVisitsByDoctorId(Long doctorId, Status status, Pageable pageRequest) {
+    public PageDto<VisitDto> getVisitsByDoctorId(Long id, VisitAvailability availability, Pageable pageRequest) {
         log.info("Process of finding doctor's visits started");
-        PageDto<VisitDto> visitsPage;
-        if (status == Status.FREE) {
-            visitsPage = pageMapper.toVisitDto(visitRepository.findByDoctorIdAndPatientIsNull(doctorId, pageRequest)
-                    .map(visitMapper::toDto));
-        } else {
-            visitsPage = pageMapper.toVisitDto(visitRepository.findByDoctorId(doctorId, pageRequest)
-                    .map(visitMapper::toDto));
+        Specification<Visit> filters = VisitSpecifications.hasDoctorId(id);
+        if (availability == VisitAvailability.FREE) {
+            filters = filters.and(VisitSpecifications.isFree()).and(VisitSpecifications.hasStatus(VisitStatus.CURRENT));
         }
+        PageDto<VisitDto> visitsPage = pageMapper.toVisitDto(visitRepository.findAll(filters, pageRequest)
+                .map(visitMapper::toDto));
         log.info("Process of finding doctor's visits ended");
         return visitsPage;
     }
 
-    public PageDto<VisitDto> getFilteredVisits(LocalDate fromDate, LocalDate toDate, Specialization specialization, Status status, Pageable pageRequest) {
+    public PageDto<VisitDto> getFilteredVisits(LocalDate fromDate, LocalDate toDate, Specialization specialization, VisitAvailability availability, Pageable pageRequest) {
         log.info("Process of finding visits by date and specialization started");
-        PageDto<VisitDto> page;
-        if (specialization == null) {
-            page = getVisitsByDate(fromDate, toDate, status, pageRequest);
-        } else {
-            page = getVisitsByDateAndSpecialization(fromDate, toDate, specialization, status, pageRequest);
-        }
+        LocalDateTime from = fromDate.atStartOfDay();
+        LocalDateTime to = toDate.plusDays(1).atStartOfDay();
+        PageDto<VisitDto> page = pageMapper.toVisitDto(filterVisits(from, to, specialization, availability, pageRequest)
+                .map(visitMapper::toDto));
         log.info("Process of finding visits by date and specialization ended");
         return page;
     }
@@ -125,37 +125,14 @@ public class VisitService {
         return visitMapper.toDto(visit);
     }
 
-    private PageDto<VisitDto> getVisitsByDate(LocalDate fromDate, LocalDate toDate, Status status, Pageable pageRequest) {
-        if (status == Status.FREE) {
-            return pageMapper.toVisitDto(visitRepository.findByStartDateGreaterThanEqualAndStartDateLessThanAndVisitStatusAndPatientIsNull(
-                            fromDate.atStartOfDay(),
-                            toDate.plusDays(1).atStartOfDay(),
-                            VisitStatus.CURRENT, pageRequest
-                    )
-                    .map(visitMapper::toDto));
+    private Page<Visit> filterVisits(LocalDateTime from, LocalDateTime to, Specialization specialization, VisitAvailability availability, Pageable pageRequest) {
+        Specification<Visit> filters =  VisitSpecifications.hasDateBetween(from, to);
+        if (availability == VisitAvailability.FREE) {
+            filters = filters.and(VisitSpecifications.hasStatus(VisitStatus.CURRENT)).and(VisitSpecifications.isFree());
         }
-        return pageMapper.toVisitDto(visitRepository.findByStartDateGreaterThanEqualAndStartDateLessThan(
-                        fromDate.atStartOfDay(),
-                        toDate.plusDays(1).atStartOfDay(),
-                        pageRequest
-                )
-                .map(visitMapper::toDto));
-    }
-
-    private PageDto<VisitDto> getVisitsByDateAndSpecialization(LocalDate fromDate, LocalDate toDate, Specialization specialization, Status status, Pageable pageRequest) {
-        if (status == Status.FREE) {
-            return pageMapper.toVisitDto(visitRepository.findByStartDateGreaterThanEqualAndStartDateLessThanAndDoctorSpecializationAndVisitStatusAndPatientIsNull(
-                            fromDate.atStartOfDay(),
-                            toDate.plusDays(1).atStartOfDay(),
-                            specialization, VisitStatus.CURRENT, pageRequest
-                    )
-                    .map(visitMapper::toDto));
+        if (specialization != null) {
+            filters = filters.and(VisitSpecifications.hasSpecialization(specialization));
         }
-        return pageMapper.toVisitDto(visitRepository.findByStartDateGreaterThanEqualAndStartDateLessThanAndDoctorSpecialization(
-                        fromDate.atStartOfDay(),
-                        toDate.plusDays(1).atStartOfDay(),
-                        specialization, pageRequest
-                )
-                .map(visitMapper::toDto));
+        return visitRepository.findAll(filters, pageRequest);
     }
 }
