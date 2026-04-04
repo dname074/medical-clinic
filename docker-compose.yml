@@ -39,8 +39,11 @@ services:
       - PGADMIN_LISTEN_PORT=5433
     depends_on:
       - postgresql
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
 networks:
   medical-clinic_network:
     driver: bridge
 volumes:
   pgdata:
+  pgadmin_data:
