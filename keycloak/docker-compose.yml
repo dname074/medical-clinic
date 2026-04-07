@@ -1,0 +1,35 @@
+version: '2'
+services:
+  keycloak-db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - keycloak_pgdata:/var/lib/postgresql/data
+    networks:
+      - keycloak_network
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    command: start-dev
+    environment:
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=password
+      - KC_HOSTNAME=keycloak
+      - KC_HTTP_PORT=8180
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    ports:
+      - 8180:8180
+    depends_on:
+      - keycloak-db
+    networks:
+      - keycloak_network
+volumes:
+  keycloak_pgdata:
+networks:
+  keycloak_network:
+    external: true

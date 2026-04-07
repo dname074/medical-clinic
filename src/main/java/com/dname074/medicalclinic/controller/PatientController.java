@@ -1,8 +1,8 @@
 package com.dname074.medicalclinic.controller;
 
-import com.dname074.medicalclinic.dto.MedicalClinicExceptionDto;
+import com.dname074.medicalclinic.dto.exception.MedicalClinicExceptionDto;
 import com.dname074.medicalclinic.dto.PageDto;
-import com.dname074.medicalclinic.dto.ValidationExceptionDto;
+import com.dname074.medicalclinic.dto.exception.ValidationExceptionDto;
 import com.dname074.medicalclinic.dto.command.CreatePatientCommand;
 import com.dname074.medicalclinic.dto.command.ChangePasswordCommand;
 import com.dname074.medicalclinic.dto.PatientDto;
@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,6 +40,7 @@ public class PatientController {
     private final PatientService patientService;
 
     @Operation(summary = "Get all patients in page based on request params")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public PageDto<PatientDto> findAll(@ParameterObject Pageable pageRequest) {
         log.info("Received GET /patients request with parameters page={} and size={}", pageRequest.getPageNumber(), pageRequest.getPageSize());
@@ -62,6 +64,7 @@ public class PatientController {
                                     schema = @Schema(implementation = ValidationExceptionDto.class))
                     })
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @GetMapping("/{patientId}")
     public PatientDto findPatientById(@PathVariable Long patientId) {
         log.info("Received GET /patients/id request with id parameter={}", patientId);
@@ -86,6 +89,7 @@ public class PatientController {
                     })
     })
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @PostMapping
     public PatientDto addPatient(@RequestBody @Valid CreatePatientCommand patient) {
         log.info("Received POST /patients request with body={}", patient.toString());
@@ -110,6 +114,7 @@ public class PatientController {
                                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
                     })
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{patientId}")
     public PatientDto updatePatientById(@PathVariable Long patientId, @RequestBody @Valid CreatePatientCommand updatedPatient) {
         log.info("Received PUT /patients/id with id parameter={} and body={}", patientId, updatedPatient);
@@ -134,6 +139,7 @@ public class PatientController {
                                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
                     })
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{patientId}")
     public PatientDto deletePatientById(@PathVariable Long patientId) {
         log.info("Received DELETE /patients/id request with id parameter={}", patientId);
@@ -153,6 +159,7 @@ public class PatientController {
                                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
                     })
     })
+    @PreAuthorize("hasRole('ADMIN', 'PATIENT')")
     @PatchMapping("/{patientId}")
     public PatientDto modifyPasswordById(@PathVariable Long patientId, @RequestBody @Valid ChangePasswordCommand newPassword) {
         log.info("Received PATCH /patients/id request with id parameter={} and body={}", patientId, newPassword);

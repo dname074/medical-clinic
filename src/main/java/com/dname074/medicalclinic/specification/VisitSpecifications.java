@@ -3,11 +3,14 @@ package com.dname074.medicalclinic.specification;
 import com.dname074.medicalclinic.model.Specialization;
 import com.dname074.medicalclinic.model.Visit;
 import com.dname074.medicalclinic.model.VisitStatus;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 
-public class VisitSpecifications {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class VisitSpecifications {
     public static Specification<Visit> hasDateBetween(LocalDateTime from, LocalDateTime to) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.and(

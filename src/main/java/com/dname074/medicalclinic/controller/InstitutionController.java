@@ -2,6 +2,8 @@ package com.dname074.medicalclinic.controller;
 
 import com.dname074.medicalclinic.dto.*;
 import com.dname074.medicalclinic.dto.command.CreateInstitutionCommand;
+import com.dname074.medicalclinic.dto.exception.MedicalClinicExceptionDto;
+import com.dname074.medicalclinic.dto.exception.ValidationExceptionDto;
 import com.dname074.medicalclinic.service.InstitutionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -83,6 +86,7 @@ public class InstitutionController {
                                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
                     })
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public InstitutionDto addInstitution(@RequestBody @Valid CreateInstitutionCommand createInstitutionCommand) {
@@ -108,6 +112,7 @@ public class InstitutionController {
                                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
                     })
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{institutionId}")
     public InstitutionDto updateInstitutionById(@RequestBody @Valid CreateInstitutionCommand createInstitutionCommand, @PathVariable Long institutionId) {
         log.info("Received PUT /institutions/id request with parameter id={} and body={}", institutionId, createInstitutionCommand.toString());
@@ -137,6 +142,7 @@ public class InstitutionController {
                                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
                     })
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{institutionId}/doctors/{doctorId}")
     public DoctorDto assignDoctorToInstitution(@PathVariable Long institutionId, @PathVariable Long doctorId) {
         log.info("Received PATCH /institution/institutionId/doctors/doctorId request with institutionId={} and doctorId={}", institutionId, doctorId);
@@ -161,6 +167,7 @@ public class InstitutionController {
                                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
                     })
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{institutionId}")
     public InstitutionDto deleteInstitutionById(@PathVariable Long institutionId) {
         log.info("Received DELETE /institutions/id request with id={}", institutionId);
@@ -185,6 +192,7 @@ public class InstitutionController {
                                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
                     })
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{institutionId}/doctors/{doctorId}")
     public DoctorDto removeDoctorFromInstitution(@PathVariable Long institutionId, @PathVariable Long doctorId) {
         log.info("Received DELETE /institutions/institutionId/doctors/doctorId request with institutiondId={} and doctorId={}", institutionId, doctorId);

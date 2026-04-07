@@ -1,8 +1,8 @@
 package com.dname074.medicalclinic.controller;
 
-import com.dname074.medicalclinic.dto.MedicalClinicExceptionDto;
+import com.dname074.medicalclinic.dto.exception.MedicalClinicExceptionDto;
 import com.dname074.medicalclinic.dto.PageDto;
-import com.dname074.medicalclinic.dto.ValidationExceptionDto;
+import com.dname074.medicalclinic.dto.exception.ValidationExceptionDto;
 import com.dname074.medicalclinic.dto.command.CreateDoctorCommand;
 import com.dname074.medicalclinic.dto.DoctorDto;
 import com.dname074.medicalclinic.model.Specialization;
@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -88,6 +89,7 @@ public class DoctorController {
                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
             })
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public DoctorDto addDoctor(@RequestBody @Valid CreateDoctorCommand createDoctorCommand) {
@@ -113,6 +115,7 @@ public class DoctorController {
                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
             })
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{doctorId}")
     public DoctorDto updateDoctorById(@PathVariable Long doctorId, @RequestBody @Valid CreateDoctorCommand createDoctorCommand) {
         log.info("Received PUT /doctors/id request with id parameter={} and body={}",doctorId, createDoctorCommand);
@@ -137,6 +140,7 @@ public class DoctorController {
                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
             })
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{doctorId}")
     public DoctorDto deleteDoctorById(@PathVariable Long doctorId) {
         log.info("Received DELETE /doctors/id request with id parameter={}", doctorId);

@@ -1,8 +1,9 @@
 package com.dname074.medicalclinic.controller;
 
-import com.dname074.medicalclinic.dto.MedicalClinicExceptionDto;
+import com.dname074.medicalclinic.authorization.VisitAuthorizationService;
+import com.dname074.medicalclinic.dto.exception.MedicalClinicExceptionDto;
 import com.dname074.medicalclinic.dto.PageDto;
-import com.dname074.medicalclinic.dto.ValidationExceptionDto;
+import com.dname074.medicalclinic.dto.exception.ValidationExceptionDto;
 import com.dname074.medicalclinic.dto.VisitDto;
 import com.dname074.medicalclinic.dto.command.CreateVisitCommand;
 import com.dname074.medicalclinic.model.Specialization;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,8 +42,10 @@ import java.time.LocalDate;
 @Tag(name = "Visit operations", description = "Endpoints related to operations on visits")
 public class VisitController {
     private final VisitService service;
+    private final VisitAuthorizationService visitSecurity;
 
     @Operation(summary = "Get patient's visits")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PATIENT')")
     @GetMapping("/patients/{id}")
     public PageDto<VisitDto> getVisitsByPatientId(@PathVariable Long id, @ParameterObject Pageable pageRequest) {
         log.info("Received GET /patients request with parameters: id={}, page={}, size={}", id, pageRequest.getPageNumber(), pageRequest.getPageSize());
@@ -49,11 +53,22 @@ public class VisitController {
     }
 
     @Operation(summary = "Get doctor's visits")
+    @PreAuthorize("@visitSecurity.canAccessDoctorVisits(#status, authentication)")
     @GetMapping("/doctors/{id}")
     public PageDto<VisitDto> getVisitsByDoctorId(@PathVariable Long id, @RequestParam(required = false) VisitStatus status, @ParameterObject Pageable pageRequest) {
         log.info("Received GET /visits/doctors request with parameters id={}, status={}, page={}, size={}", id, status, pageRequest.getPageNumber(), pageRequest.getPageSize());
         return service.getVisitsByDoctorId(id, status, pageRequest);
     }
+
+//    @GetMapping("/doctors/{id}")
+//    public PageDto<VisitDto> getVisitsByDoctorId(@AuthenticationPrincipal Jwt jwt, @RequestParam(required = false) VisitStatus status, @ParameterObject Pageable pageRequest) {
+//        log.info("Received GET /visits/doctors request with parameters id={}, status={}, page={}, size={}", id, status, pageRequest.getPageNumber(), pageRequest.getPageSize());
+//        return service.getVisitsByDoctorId(jwt, status, pageRequest);
+//    }
+//    getDoctorVisits(Jwt jwt, VisitStatus, status, Pageable pageRequest) {
+//        Doctor doctor = doctorRepository.findByKeycloakId(keycloakId);
+//        return visitRepository.findByDoctorId(doctor.getId());
+//    }
 
     @Operation(summary = "Get free visits by date and doctor's specialization")
     @GetMapping
@@ -90,6 +105,7 @@ public class VisitController {
                                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
                     })
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public VisitDto addVisit(@RequestBody @Valid CreateVisitCommand createVisitCommand) {
@@ -125,6 +141,7 @@ public class VisitController {
                                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
                     })
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'PATIENT')")
     @PatchMapping("/{visitId}/patients/{patientId}")
     public VisitDto assign(@PathVariable Long visitId, @PathVariable Long patientId) {
         log.info("Received PATCH /visits/{}/patients/{}", visitId, patientId);
@@ -156,6 +173,7 @@ public class VisitController {
                             })
             }
     )
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @PatchMapping("/{visitId}")
     public VisitDto cancelVisit(@PathVariable Long visitId) {
         log.info("Received PATCH /visits/{} request", visitId);

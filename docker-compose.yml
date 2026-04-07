@@ -10,6 +10,7 @@ services:
       - 8080:8080
     networks:
       - medical-clinic_network
+      - keycloak_network
     depends_on:
       - postgresql
   postgresql:
@@ -44,6 +45,8 @@ services:
 networks:
   medical-clinic_network:
     driver: bridge
+  keycloak_network:
+    external: true
 volumes:
   pgdata:
   pgadmin_data:

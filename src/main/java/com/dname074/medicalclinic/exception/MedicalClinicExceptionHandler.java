@@ -1,7 +1,7 @@
 package com.dname074.medicalclinic.exception;
 
-import com.dname074.medicalclinic.dto.MedicalClinicExceptionDto;
-import com.dname074.medicalclinic.dto.ValidationExceptionDto;
+import com.dname074.medicalclinic.dto.exception.MedicalClinicExceptionDto;
+import com.dname074.medicalclinic.dto.exception.ValidationExceptionDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
