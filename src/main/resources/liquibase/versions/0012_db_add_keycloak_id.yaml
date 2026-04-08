@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 14
+      author: damian
+      comment: "Add keycloak_id column into users table"
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: keycloak_id
+                  type: VARCHAR(36)
+                  defaultValue: '000'
+        - update:
+            tableName: users
+            columns:
+              - column:
+                  name: keycloak_id
+                  value: '000'
+            where: keycloak_id IS NULL
+        - addNotNullConstraint:
+            tableName: users
+            columnName: keycloak_id
+            columnDataType: VARCHAR(36)

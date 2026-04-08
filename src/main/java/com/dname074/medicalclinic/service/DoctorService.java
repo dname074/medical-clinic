@@ -59,7 +59,7 @@ public class DoctorService {
                 .ifPresent(user -> {
                     throw new UserAlreadyExistsException("Ta osoba została już dodana do systemu");
                 });
-        User user = new User(null, createDoctorCommand.firstName(), createDoctorCommand.lastName());
+        User user = new User(null, createDoctorCommand.keycloakId(), createDoctorCommand.firstName(), createDoctorCommand.lastName());
         Doctor doctor = doctorMapper.toEntity(createDoctorCommand);
         doctor.setUser(user);
         doctorRepository.save(doctor);

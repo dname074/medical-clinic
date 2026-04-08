@@ -16,5 +16,9 @@ public record CreateDoctorCommand(
         @NotBlank
         @Size(min = 8, max = 64)
         String password,
-        Specialization specialization) {
+        Specialization specialization,
+        @Size(min = 36, max = 36)
+        @NotBlank
+        String keycloakId
+) {
 }

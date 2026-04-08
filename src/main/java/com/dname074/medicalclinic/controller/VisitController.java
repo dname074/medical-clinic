@@ -1,6 +1,5 @@
 package com.dname074.medicalclinic.controller;
 
-import com.dname074.medicalclinic.authorization.VisitAuthorizationService;
 import com.dname074.medicalclinic.dto.exception.MedicalClinicExceptionDto;
 import com.dname074.medicalclinic.dto.PageDto;
 import com.dname074.medicalclinic.dto.exception.ValidationExceptionDto;
@@ -23,6 +22,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,7 +42,6 @@ import java.time.LocalDate;
 @Tag(name = "Visit operations", description = "Endpoints related to operations on visits")
 public class VisitController {
     private final VisitService service;
-    private final VisitAuthorizationService visitSecurity;
 
     @Operation(summary = "Get patient's visits")
     @PreAuthorize("hasAnyRole('ADMIN', 'PATIENT')")
@@ -52,23 +51,16 @@ public class VisitController {
         return service.getVisitsByPatientId(id, pageRequest);
     }
 
-    @Operation(summary = "Get doctor's visits")
-    @PreAuthorize("@visitSecurity.canAccessDoctorVisits(#status, authentication)")
-    @GetMapping("/doctors/{id}")
-    public PageDto<VisitDto> getVisitsByDoctorId(@PathVariable Long id, @RequestParam(required = false) VisitStatus status, @ParameterObject Pageable pageRequest) {
+    @Operation(summary = "Get doctor's visits as a patient or admin")
+    @PreAuthorize("hasAnyRole('PATIENT', 'DOCTOR', 'ADMIN')")
+    @GetMapping("/doctors")
+    public PageDto<VisitDto> getVisitsByDoctorId(@RequestParam Long id,
+                                                 @RequestParam(required = false) VisitStatus status,
+                                                 @ParameterObject Pageable pageRequest,
+                                                 Authentication auth) {
         log.info("Received GET /visits/doctors request with parameters id={}, status={}, page={}, size={}", id, status, pageRequest.getPageNumber(), pageRequest.getPageSize());
-        return service.getVisitsByDoctorId(id, status, pageRequest);
+        return service.getVisitsByDoctorId(id, status, pageRequest, auth);
     }
-
-//    @GetMapping("/doctors/{id}")
-//    public PageDto<VisitDto> getVisitsByDoctorId(@AuthenticationPrincipal Jwt jwt, @RequestParam(required = false) VisitStatus status, @ParameterObject Pageable pageRequest) {
-//        log.info("Received GET /visits/doctors request with parameters id={}, status={}, page={}, size={}", id, status, pageRequest.getPageNumber(), pageRequest.getPageSize());
-//        return service.getVisitsByDoctorId(jwt, status, pageRequest);
-//    }
-//    getDoctorVisits(Jwt jwt, VisitStatus, status, Pageable pageRequest) {
-//        Doctor doctor = doctorRepository.findByKeycloakId(keycloakId);
-//        return visitRepository.findByDoctorId(doctor.getId());
-//    }
 
     @Operation(summary = "Get free visits by date and doctor's specialization")
     @GetMapping
@@ -76,10 +68,11 @@ public class VisitController {
                                                @RequestParam(name = "from") @FutureOrPresent LocalDate fromDate,
                                                @RequestParam(name = "to") @FutureOrPresent LocalDate toDate,
                                                @RequestParam(required = false) VisitStatus status,
-                                               @ParameterObject Pageable pageRequest) {
+                                               @ParameterObject Pageable pageRequest,
+                                               Authentication auth) {
         log.info("Received GET /visits/doctors request with params specialization = {}, fromDate = {}, toDate = {}, status = {}, page = {} and size = {}",
                 specialization, fromDate, toDate, status, pageRequest.getPageNumber(), pageRequest.getPageSize());
-        return service.getFilteredVisits(fromDate, toDate, specialization, status, pageRequest);
+        return service.getFilteredVisits(fromDate, toDate, specialization, status, pageRequest, auth);
     }
 
     @Operation(summary = "Add available visit")
@@ -105,12 +98,13 @@ public class VisitController {
                                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
                     })
     })
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public VisitDto addVisit(@RequestBody @Valid CreateVisitCommand createVisitCommand) {
+    public VisitDto addVisit(@RequestBody @Valid CreateVisitCommand createVisitCommand,
+                             Authentication auth) {
         log.info("Received POST /visits request {}", createVisitCommand.toString());
-        return service.addAvailableVisit(createVisitCommand);
+        return service.addAvailableVisit(createVisitCommand, auth);
     }
 
     @Operation(summary = "Assign patient to visit")
@@ -143,9 +137,10 @@ public class VisitController {
     })
     @PreAuthorize("hasAnyRole('ADMIN', 'PATIENT')")
     @PatchMapping("/{visitId}/patients/{patientId}")
-    public VisitDto assign(@PathVariable Long visitId, @PathVariable Long patientId) {
+    public VisitDto assign(@PathVariable Long visitId, @PathVariable Long patientId,
+                           Authentication auth) {
         log.info("Received PATCH /visits/{}/patients/{}", visitId, patientId);
-        return service.assign(visitId, patientId);
+        return service.assign(visitId, patientId, auth);
     }
 
     @Operation(summary = "Cancel visit")
@@ -175,8 +170,8 @@ public class VisitController {
     )
     @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @PatchMapping("/{visitId}")
-    public VisitDto cancelVisit(@PathVariable Long visitId) {
+    public VisitDto cancelVisit(@PathVariable Long visitId, Authentication auth) {
         log.info("Received PATCH /visits/{} request", visitId);
-        return service.cancelVisit(visitId);
+        return service.cancelVisit(visitId, auth);
     }
 }

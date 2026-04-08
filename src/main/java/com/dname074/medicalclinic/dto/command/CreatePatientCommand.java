@@ -25,5 +25,9 @@ public record CreatePatientCommand(
         @Pattern(regexp = "^\\d{9}$")
         String phoneNumber,
         @Past
-        LocalDate birthday) {
+        LocalDate birthday,
+        @Size(min = 36, max = 36)
+        @NotBlank
+        String keycloakId
+        ) {
 }
