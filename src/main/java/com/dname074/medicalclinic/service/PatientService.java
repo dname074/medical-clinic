@@ -1,5 +1,6 @@
 package com.dname074.medicalclinic.service;
 
+import com.dname074.medicalclinic.authorization.AuthorizationService;
 import com.dname074.medicalclinic.dto.PageDto;
 import com.dname074.medicalclinic.exception.patient.PatientAlreadyExistsException;
 import com.dname074.medicalclinic.exception.patient.PatientNotFoundException;
@@ -10,6 +11,7 @@ import com.dname074.medicalclinic.dto.command.CreatePatientCommand;
 import com.dname074.medicalclinic.dto.command.ChangePasswordCommand;
 import com.dname074.medicalclinic.dto.PatientDto;
 import com.dname074.medicalclinic.model.Patient;
+import com.dname074.medicalclinic.model.Role;
 import com.dname074.medicalclinic.model.User;
 import com.dname074.medicalclinic.repository.PatientRepository;
 import com.dname074.medicalclinic.repository.UserRepository;
@@ -17,6 +19,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -27,6 +32,7 @@ public class PatientService {
     private final UserRepository userRepository;
     private final PatientMapper mapper;
     private final PageMapper pageMapper;
+    private final AuthorizationService authService;
 
     public PageDto<PatientDto> findAll(Pageable pageRequest) {
         log.info("Process of finding patients by parameters started");
@@ -36,9 +42,10 @@ public class PatientService {
         return page;
     }
 
-    public PatientDto getPatientDtoById(Long patientId) {
+    public PatientDto getPatientDtoById(Long patientId, Authentication auth) {
         log.info("Process of finding patient by id started");
         Patient patient = getPatientById(patientId);
+        validateAccess(patient, auth);
         log.info("Process of finding patient by id ended");
         return mapper.toDto(patient);
     }
@@ -46,13 +53,7 @@ public class PatientService {
     @Transactional
     public PatientDto addPatient(CreatePatientCommand createPatientCommand) {
         log.info("Process of adding new patient started");
-        if (patientRepository.findByEmail(createPatientCommand.email()).isPresent()) {
-            throw new PatientAlreadyExistsException("Pacjent o podanym adresie email już istnieje w bazie danych");
-        }
-        userRepository.findByFirstNameAndLastName(createPatientCommand.firstName(), createPatientCommand.lastName())
-                .ifPresent(user -> {
-                    throw new UserAlreadyExistsException("Ta osoba została już dodana do systemu");
-                });
+        validateAddingPatient(createPatientCommand);
         User user = new User(null, createPatientCommand.keycloakId(), createPatientCommand.firstName(), createPatientCommand.lastName());
         Patient patient = mapper.toEntity(createPatientCommand);
         patient.setUser(user);
@@ -62,9 +63,10 @@ public class PatientService {
     }
 
     @Transactional
-    public PatientDto updatePatientById(Long patientId, CreatePatientCommand createPatientCommand) {
+    public PatientDto updatePatientById(Long patientId, CreatePatientCommand createPatientCommand, Authentication auth) {
         log.info("Process of updating patient started");
         Patient patient = getPatientById(patientId);
+        validateAccess(patient, auth);
         patient.update(createPatientCommand);
         patientRepository.save(patient);
         log.info("Process of updating patient ended");
@@ -81,17 +83,35 @@ public class PatientService {
     }
 
     @Transactional
-    public PatientDto modifyPatientPasswordById(Long patientId, ChangePasswordCommand newPassword) {
+    public PatientDto modifyPatientPasswordById(Long patientId, ChangePasswordCommand newPassword, Authentication auth) {
         log.info("Process of modifying patient's password started");
         Patient patient = getPatientById(patientId);
+        validateAccess(patient, auth);
         patient.setPassword(mapper.changePasswordCommandToEntity(newPassword));
         patientRepository.save(patient);
         log.info("Process of modifying patient's password ended");
         return mapper.toDto(patient);
     }
 
+    private void validateAccess(Patient patient, Authentication auth) {
+        Jwt jwt = authService.extractJwt(auth);
+        if (!authService.hasRole(auth, Role.ADMIN) && !patient.getUser().getKeycloakId().equals(jwt.getClaimAsString("sub"))) {
+            throw new AccessDeniedException("Only patients (or admins) can view/update their own profiles");
+        }
+    }
+
+    private void validateAddingPatient(CreatePatientCommand createPatientCommand) {
+        if (patientRepository.findByEmail(createPatientCommand.email()).isPresent()) {
+            throw new PatientAlreadyExistsException("Patient with provided email already exists");
+        }
+        userRepository.findByFirstNameAndLastName(createPatientCommand.firstName(), createPatientCommand.lastName())
+                .ifPresent(user -> {
+                    throw new UserAlreadyExistsException("This user has already been added before");
+                });
+    }
+
     private Patient getPatientById(Long patientId) {
         return patientRepository.findById(patientId)
-                .orElseThrow(() -> new PatientNotFoundException("Nie udało się znaleźć pacjenta o podanym id"));
+                .orElseThrow(() -> new PatientNotFoundException("Patient not found"));
     }
 }

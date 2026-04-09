@@ -20,6 +20,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,10 +66,12 @@ public class DoctorController {
                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
             })
     })
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     @GetMapping("/{doctorId}")
-    public DoctorDto findDoctorById(@PathVariable Long doctorId) {
+    public DoctorDto findDoctorById(@PathVariable Long doctorId,
+                                    Authentication auth) {
         log.info("Received GET /doctors/id request with id parameter {}", doctorId);
-        return service.getDoctorDtoById(doctorId);
+        return service.getDoctorDtoById(doctorId, auth);
     }
 
     @Operation(summary = "Add doctor to medical clinic system")
@@ -115,11 +118,13 @@ public class DoctorController {
                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
             })
     })
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'ADMIN')")
     @PutMapping("/{doctorId}")
-    public DoctorDto updateDoctorById(@PathVariable Long doctorId, @RequestBody @Valid CreateDoctorCommand createDoctorCommand) {
+    public DoctorDto updateDoctorById(@PathVariable Long doctorId,
+                                      @RequestBody @Valid CreateDoctorCommand createDoctorCommand,
+                                      Authentication auth) {
         log.info("Received PUT /doctors/id request with id parameter={} and body={}",doctorId, createDoctorCommand);
-        return service.updateDoctorById(doctorId, createDoctorCommand);
+        return service.updateDoctorById(doctorId, createDoctorCommand, auth);
     }
 
     @Operation(summary = "Delete doctor by id")

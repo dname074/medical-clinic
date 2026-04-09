@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/doctors").permitAll()
                         .requestMatchers("/institutions").permitAll()
+                        .requestMatchers("/institutions/*").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
