@@ -116,7 +116,7 @@ public class PatientController {
                                     schema = @Schema(implementation = MedicalClinicExceptionDto.class))
                     })
     })
-    @PreAuthorize("hasRole('PATIENT', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('PATIENT', 'ADMIN')")
     @PutMapping("/{patientId}")
     public PatientDto updatePatientById(@PathVariable Long patientId,
                                         @RequestBody @Valid CreatePatientCommand updatedPatient,

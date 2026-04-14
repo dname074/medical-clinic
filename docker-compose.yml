@@ -13,6 +13,8 @@ services:
       - keycloak_network
     depends_on:
       - postgresql
+    environment:
+# dokonczyc todo:
   postgresql:
     container_name: postgresql
     image: postgres:18-alpine3.22

@@ -100,8 +100,9 @@ public class VisitService {
         visit.setDoctor(doctor);
         doctor.addVisit(visit);
         visit.setVisitStatus(VisitStatus.AVAILABLE);
+        visitRepository.save(visit);
         log.info("Process of creating new visit ended");
-        return visitMapper.toDto(visitRepository.save(visit));
+        return visitMapper.toDto(visit);
     }
 
     @Transactional
@@ -148,7 +149,7 @@ public class VisitService {
             if (status == VisitStatus.AVAILABLE || isOwner) {
                 return;
             }
-            throw new AccessDeniedException("Doctor can only view own visits");
+            throw new AccessDeniedException("Doctor can't view other doctors' visits");
         }
         throw new AccessDeniedException("Unknown role");
     }
