@@ -14,7 +14,8 @@ services:
     depends_on:
       - postgresql
     environment:
-# dokonczyc todo:
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI=http://keycloak:8180/realms/medical-clinic-dev/protocol/openid-connect/certs
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/medical_clinic
   postgresql:
     container_name: postgresql
     image: postgres:18-alpine3.22
