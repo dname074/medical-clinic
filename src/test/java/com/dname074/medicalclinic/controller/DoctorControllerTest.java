@@ -3,7 +3,7 @@ package com.dname074.medicalclinic.controller;
 import com.dname074.medicalclinic.dto.DoctorDto;
 import com.dname074.medicalclinic.dto.PageDto;
 import com.dname074.medicalclinic.dto.UserDto;
-import com.dname074.medicalclinic.dto.command.CreateDoctorCommand;
+import pl.javakurs.dname074.dto.command.CreateDoctorCommand;
 import com.dname074.medicalclinic.exception.doctor.DoctorAlreadyExistsException;
 import com.dname074.medicalclinic.exception.doctor.DoctorNotFoundException;
 import com.dname074.medicalclinic.exception.user.UserAlreadyExistsException;

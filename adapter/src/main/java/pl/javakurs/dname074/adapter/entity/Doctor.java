@@ -1,0 +1,94 @@
+package pl.javakurs.dname074.adapter.entity;
+
+import com.dname074.medicalclinic.exception.institution.InstitutionExistsException;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import pl.javakurs.dname074.dto.command.CreateDoctorCommand;
+import pl.javakurs.dname074.model.Specialization;
+
+import java.util.List;
+import java.util.Objects;
+
+@NoArgsConstructor
+@Getter
+@Setter
+@Entity
+@Table(name = "doctors", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "email")
+})
+public class Doctor {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String email;
+    private String password;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+    @Enumerated(EnumType.STRING)
+    private Specialization specialization;
+    @ManyToMany(mappedBy = "doctors", fetch = FetchType.LAZY)
+    private List<Institution> institutions;
+    @OneToMany(mappedBy = "doctor")
+    private List<Visit> visits;
+
+    public void update(CreateDoctorCommand createDoctorCommand) {
+        this.email = createDoctorCommand.email();
+        this.password = createDoctorCommand.password();
+        this.user.setFirstName(createDoctorCommand.firstName());
+        this.user.setLastName(createDoctorCommand.lastName());
+        this.specialization = createDoctorCommand.specialization();
+    }
+
+    public void addInstitution(Institution newInstitution) {
+        boolean exists = institutions.stream()
+                        .anyMatch(institution -> institution.getName().equals(newInstitution.getName()));
+        if (exists) {
+            throw new InstitutionExistsException("Ten doktor jest już przypisany do podanej placówki");
+        }
+        institutions.add(newInstitution);
+    }
+
+    public void addVisit(Visit newVisit) {
+        visits.add(newVisit);
+    }
+
+    @PreRemove
+    public void removeInstitutionAssociations() {
+        for (Institution institution : institutions) {
+            institution.getDoctors().remove(this);
+        }
+    }
+
+    @Override
+    public String toString() {
+        String doctorString = "Doctor{" +
+              +  "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", user_id=" + user.getId() +
+                ", specialization=" + specialization;
+        if (institutions != null) {
+            doctorString += ", institutions_ids=" + institutions.stream()
+                    .map(Institution::getId)
+                    .toList()+
+                    '}';
+        }
+        return doctorString;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this==o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Doctor doctor = (Doctor) o;
+        return id != null && Objects.equals(id, doctor.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+}

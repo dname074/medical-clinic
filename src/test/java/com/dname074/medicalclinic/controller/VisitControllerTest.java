@@ -1,10 +1,8 @@
 package com.dname074.medicalclinic.controller;
 
-import com.dname074.medicalclinic.dto.*;
-import com.dname074.medicalclinic.dto.command.CreateVisitCommand;
-import com.dname074.medicalclinic.dto.simple.SimpleDoctorDto;
-import com.dname074.medicalclinic.dto.simple.SimplePatientDto;
-import com.dname074.medicalclinic.exception.visit.*;
+import pl.javakurs.dname074.dto.command.CreateVisitCommand;
+import pl.javakurs.dname074.dto.simple.SimpleDoctorDto;
+import pl.javakurs.dname074.dto.simple.SimplePatientDto;
 import com.dname074.medicalclinic.mapper.PageMapper;
 import com.dname074.medicalclinic.model.Specialization;
 import com.dname074.medicalclinic.model.VisitStatus;

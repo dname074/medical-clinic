@@ -1,0 +1,63 @@
+package pl.javakurs.dname074.adapter.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import pl.javakurs.dname074.model.VisitStatus;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+@NoArgsConstructor
+@Getter
+@Setter
+@Entity
+@Table(name = "visits", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {
+                "start_date",
+                "end_date"
+        })
+})
+public class Visit {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "start_date")
+    private LocalDateTime startDate;
+    @Column(name = "end_date")
+    private LocalDateTime endDate;
+    @Column(name = "visit_status")
+    @Enumerated(value = EnumType.STRING)
+    private VisitStatus visitStatus;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinColumn(name = "patient_id", referencedColumnName = "id")
+    private Patient patient;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinColumn(name = "doctor_id", referencedColumnName = "id")
+    private Doctor doctor;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Visit visit = (Visit) o;
+        return id != null && Objects.equals(id, visit.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Visit{" +
+                "id=" + id +
+                ", startDateTime=" + startDate +
+                ", endDateTime=" + endDate +
+                ", patient_id=" + patient.getId() +
+                ", doctor_id=" + doctor.getId() +
+                '}';
+    }
+}

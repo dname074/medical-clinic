@@ -2,8 +2,8 @@ package com.dname074.medicalclinic.controller;
 
 import com.dname074.medicalclinic.dto.PatientDto;
 import com.dname074.medicalclinic.dto.UserDto;
-import com.dname074.medicalclinic.dto.command.ChangePasswordCommand;
-import com.dname074.medicalclinic.dto.command.CreatePatientCommand;
+import pl.javakurs.dname074.dto.command.ChangePasswordCommand;
+import pl.javakurs.dname074.dto.command.CreatePatientCommand;
 import com.dname074.medicalclinic.exception.patient.PatientAlreadyExistsException;
 import com.dname074.medicalclinic.exception.patient.PatientNotFoundException;
 import com.dname074.medicalclinic.mapper.PageMapper;
