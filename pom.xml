@@ -11,7 +11,8 @@
 	<groupId>com.dname074</groupId>
 	<artifactId>medicalclinic</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>medicalclinic</name>
+    <packaging>pom</packaging>
+    <name>medicalclinic</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
@@ -20,7 +21,13 @@
 	<developers>
 		<developer/>
 	</developers>
-	<scm>
+    <modules>
+        <module>adapter</module>
+		<module>domain</module>
+		<module>model</module>
+		<module>public</module>
+	</modules>
+    <scm>
 		<connection/>
 		<developerConnection/>
 		<tag/>
